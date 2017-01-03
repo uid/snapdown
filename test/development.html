@@ -1,0 +1,29 @@
+<html>
+<head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/2.7.13/cytoscape.js" integrity="sha256-RuoFRV3YQfhh3+WUq57nBnTmJA6Q5Nh6nfSKxwTPCiw=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pegjs/0.9.0/peg.js" integrity="sha256-cwfR02g6XnRmRxZLIwyChnsn4ODrS2uSl6eODJkjrnY=" crossorigin="anonymous"></script> <!-- TODO out of date -->
+<script>
+const module = {};
+function require(module) {
+  switch (module) {
+    case 'cytoscape': return window.cytoscape;
+    case 'snapdown-parser': return PEG.buildParser(snapdown_grammar);
+  }
+  throw module;
+}
+</script>
+<script src="../src/snapdown.peg.js"></script>
+<script src="../src/index.js"></script>
+<script> const Snapdown = module.exports; </script>
+</head>
+<body>
+<h1>Snapdown</h1>
+<script type="text/snapdown">
+a -> (Foo)
+b => ((Bar x->5))
+</script>
+<script>
+Snapdown.renderAll();
+</script>
+</body>
+</html>

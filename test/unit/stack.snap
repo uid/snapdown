@@ -1,0 +1,8 @@
+x -> (Whatever)
+
+topOfStack() {
+this -> x
+foo -> 5
+}
+lowerInStack() {}
+main() {}
