@@ -117,6 +117,7 @@ function render(scriptElement) {
       { selector: '.arrow.immutable.outer', style: { width: 3 } },
       { selector: '.arrow.immutable.inner', style: { width: 1, 'line-color': '#fff' } },
     ],
+    layout: { name: 'dagre' },
   });
 };
 
