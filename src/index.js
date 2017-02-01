@@ -47,14 +47,28 @@ transform.pointer = function(pointer, parent, env) {
     classes: 'label',
   };
   let targets = transform.all(pointer.target);
-  return [
-    source,
-    ...targets,
-    {
+  let arrows;
+  if (pointer.mutable) {
+    arrows = [{
       group: 'edges',
       data: { source: source.data.id, target: targets[0].data.id },
       classes: `arrow ${pointer.mutable ? '' : 'im' }mutable`,
-    },
+    }];
+  } else {
+    arrows = [{
+      group: 'edges',
+      data: { source: source.data.id, target: targets[0].data.id },
+      classes: 'arrow immutable outer',
+    }, {
+      group: 'edges',
+      data: { source: source.data.id, target: targets[0].data.id },
+      classes: 'arrow immutable inner',
+    }];
+  }
+  return [
+    source,
+    ...targets,
+    ...arrows,
   ];
 };
 transform.object = function(object, parent, env) {
@@ -94,12 +108,14 @@ function render(scriptElement) {
     elements,
     style: [
       { selector: '.label', style: { width: 'label', height: 'label', content: 'data(label)', 'background-opacity': 0, 'text-valign': 'center', 'text-halign': 'center' } },
-      { selector: '.arrow', style: { 'width': 1, 'line-color': 'black', 'target-arrow-shape': 'triangle' } },
-      { selector: '.object', style: { content: 'data(type)', 'background-opacity': 0, 'border-width': 1, 'border-color': 'black', shape: 'ellipse', 'text-valign': 'top', 'text-halign': 'center' } },
+      { selector: '.arrow', style: { width: 1, 'line-color': 'black', 'target-arrow-shape': 'triangle', 'target-arrow-color': 'black', 'curve-style': 'segments', 'segment-distances': '0 0', 'segment-weights': '0.001 0.999', 'edge-distances': 'intersection' } },
+      { selector: '.object', style: { content: 'data(type)', 'background-opacity': 0, 'border-width': 1, 'border-color': 'black', shape: 'roundrectangle', 'text-valign': 'top', 'text-halign': 'center' } },
       { selector: '.primitive', style: { width: 'label', height: 'label', content: 'data(value)', 'background-opacity': 0, 'text-valign': 'center', 'text-halign': 'center' } },
       
-      { selector: '.object.immutable', style: { 'border-style': 'double' } },
-      { selector: '.arrow.immutable', style: { 'line-style': 'dashed' } },
+      { selector: '.object.immutable', style: { 'border-style': 'double', 'border-width': 4, shape: 'roundrectangle' } },
+      { selector: '.arrow.immutable', style: { 'segment-weights': '0.001 0.90' } },
+      { selector: '.arrow.immutable.outer', style: { width: 3 } },
+      { selector: '.arrow.immutable.inner', style: { width: 1, 'line-color': '#fff' } },
     ],
   });
 };
