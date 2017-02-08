@@ -50,6 +50,15 @@ _ -> (Person id => 9208484, age -> 19)
 <script type="text/snapdown">
 cities -> (List<String> 0 -> "Boston", 1 -> "Bogotá", 2 -> "Barcelona")
 </script>
+<h1>Set</h1>
+<!-- FIXME how to disambiguate between values that should be inside the bubble vs.
+values outside? We would probably like (Set<Integer> -7, 42, 1024) to be the
+correct syntax. -->
+<script type="text/snapdown">
+cities -> (Set<Integer> _ -> -7, _ -> 42, _ -> 1024)
+</script>
+<h1>Map</h1>
+<!-- TODO -->
 <script>
 Snapdown.renderAll();
 </script>

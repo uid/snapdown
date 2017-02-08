@@ -27,6 +27,8 @@ const makeid = function() {
 
 // TODO not sure what this env is meant to be, but I assume it refers to the
 // environment of the name binding?
+//
+// FIXME object fields and locals (incorrectly) share a namespace.
 function makeOrGetLabel(name, parent, env) {
   if (name !== '_' && env[name]) {
     return env[name];
