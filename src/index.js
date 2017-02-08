@@ -25,6 +25,23 @@ const makeid = function() {
   };
 }();
 
+// TODO not sure what this env is meant to be, but I assume it refers to the
+// environment of the name binding?
+function makeOrGetLabel(name, parent, env) {
+  if (name !== '_' && env[name]) {
+    return env[name];
+  }
+  const elt = {
+    group: 'nodes',
+    data: { id: makeid('label'), parent, label: name },
+    classes: `label ${name === '_' ? 'hidden' : ''}`,
+  };
+  if (name !== '_') {
+    env[name] = elt;
+  }
+  return elt;
+}
+
 function transform(spec) {
   return transform.all(spec, undefined, {});
 };
@@ -35,34 +52,30 @@ transform.all = function(obj, parent, env) {
   return Object.keys(obj).map(key => transform[key](obj[key], parent, env)).reduce((a, b) => a.concat(b), []);
 };
 transform.heap = function(heap, parent, env) {
-  return transform.all(heap);
+  return transform.all(heap, undefined, {});
 };
 transform.stacks = function(stacks, parent, env) {
   return []; // TODO
 };
 transform.pointer = function(pointer, parent, env) {
-  let source = {
-    group: 'nodes',
-    data: { id: makeid('label'), parent, label: pointer.source },
-    classes: 'label' + (pointer.source === '_' ? ' hidden' : ''),
-  };
-  let targets = transform.all(pointer.target);
+  let source = makeOrGetLabel(pointer.source, parent, env);
+  let targets = transform.all(pointer.target, undefined, env);
   let arrows;
   if (pointer.mutable) {
     arrows = [{
       group: 'edges',
       data: { source: source.data.id, target: targets[0].data.id },
-      classes: `arrow ${pointer.mutable ? '' : 'im' }mutable`,
+      classes: `arrow ${pointer.broken ? 'broken' : ''} mutable`,
     }];
   } else {
     arrows = [{
       group: 'edges',
       data: { source: source.data.id, target: targets[0].data.id },
-      classes: 'arrow immutable outer',
+      classes: `arrow ${pointer.broken ? 'broken' : ''} immutable outer`,
     }, {
       group: 'edges',
       data: { source: source.data.id, target: targets[0].data.id },
-      classes: 'arrow immutable inner',
+      classes: `arrow ${pointer.broken ? 'broken' : ''} immutable inner`,
     }];
   }
   return [
@@ -125,6 +138,8 @@ function render(scriptElement) {
       { selector: '.arrow.immutable', style: { 'segment-weights': '0.001 0.90' } },
       { selector: '.arrow.immutable.outer', style: { width: 3 } },
       { selector: '.arrow.immutable.inner', style: { width: 1, 'line-color': '#fff' } },
+      { selector: '.arrow.broken', style: { 'mid-source-arrow-shape': 'triangle-backcurve', 'mid-source-arrow-fill': 'hollow', 'mid-source-arrow-color': 'red',
+                                            'mid-target-arrow-shape': 'triangle-backcurve', 'mid-target-arrow-fill': 'hollow', 'mid-target-arrow-color': 'red', } },
     ],
     layout: { name: 'dagre' },
   });
