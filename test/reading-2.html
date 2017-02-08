@@ -37,6 +37,19 @@ _ -> (Point int x -> 5, int y -> -3)
 s -x> ((String "a"))
 s -> ((String "ab"))
 </script>
+<h1>Mutable values</h1>
+<!-- TODO need a syntax for crossing out old values -->
+<script type="text/snapdown">
+sb -> (StringBuilder "a", "ab")
+</script>
+<h1>Immutable references</h1>
+<script type="text/snapdown">
+_ -> (Person id => 9208484, age -> 19)
+</script>
+<h1>List</h1>
+<script type="text/snapdown">
+cities -> (List<String> 0 -> "Boston", 1 -> "Bogotá", 2 -> "Barcelona")
+</script>
 <script>
 Snapdown.renderAll();
 </script>

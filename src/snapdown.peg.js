@@ -29,7 +29,7 @@ value = object / array / string / primitive
 object = object:(mutable / immutable) { return { object }; }
 mutable = "(" internals:internals ")" { return Object.assign(internals, { mutable: true }); }
 immutable = "((" internals:internals "))" { return Object.assign(internals, { mutable: false }); }
-internals = __ type:id fields:(spaces_lines f:fields { return f; })? __ { return { type, fields: fields || [] }; }
+internals = __ type:type fields:(spaces_lines f:fields { return f; })? __ { return { type, fields: fields || [] }; }
 
 // fields; usually pointers, but a sequence of pairs is used for maps, and a sequence of values is used for sets
 fields = f:(pointers / pairs / values) { return [ f.first, ...f.rest ]; }
@@ -65,6 +65,8 @@ thread = "thread"i spaces label:id { return { thread: label }; }
 id = reference / name
 reference = "#" [0-9]+ { return text(); }
 name = [a-z0-9_]i+ { return text(); }
+type = name:name "<" params:type_params ">" { return name + "<" + params + ">"; } / name
+type_params = first:type rest:(_ "," _ type:type { return type; })* { return [first, ...rest].join(', '); }
 literal = "\`" literal:([^\`]* { return text(); }) "\`" { return literal; }
 
 spaces = [ \t]+ { return false; }
