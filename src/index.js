@@ -82,10 +82,17 @@ transform.object = function(object, parent, env) {
     ...transform.all(object.fields, id, env),
   ];
 };
+transform.string = function(string, parent, env) {
+  return {
+    group: 'nodes',
+    data: { id: makeid('string'), parent, value: '"' + string + '"' },
+    classes: 'string',
+  }
+}
 transform.primitive = function(primitive, parent, env) {
   return {
     group: 'nodes',
-    data: { id: makeid('primitive'), value: primitive },
+    data: { id: makeid('primitive'), parent, value: primitive },
     classes: 'primitive',
   };
 };
@@ -110,6 +117,7 @@ function render(scriptElement) {
       { selector: '.label', style: { width: 'label', height: 'label', content: 'data(label)', 'background-opacity': 0, 'text-valign': 'center', 'text-halign': 'center' } },
       { selector: '.arrow', style: { width: 1, 'line-color': 'black', 'target-arrow-shape': 'triangle', 'target-arrow-color': 'black', 'curve-style': 'segments', 'segment-distances': '0 0', 'segment-weights': '0.001 0.999', 'edge-distances': 'intersection' } },
       { selector: '.object', style: { content: 'data(type)', 'background-opacity': 0, 'border-width': 1, 'border-color': 'black', shape: 'roundrectangle', 'text-valign': 'top', 'text-halign': 'center' } },
+      { selector: '.string', style: { width: 'label', height: 'label', content: 'data(value)', 'background-opacity': 0, 'text-valign': 'center', 'text-halign': 'center' } },
       { selector: '.primitive', style: { width: 'label', height: 'label', content: 'data(value)', 'background-opacity': 0, 'text-valign': 'center', 'text-halign': 'center' } },
 
       { selector: '.label.hidden', style: { width: 1, height: 1, content: '' } },

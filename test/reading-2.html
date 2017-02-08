@@ -32,6 +32,11 @@ _ -> (Point)
 _ -> (Point x -> 5, y -> -3)
 _ -> (Point int x -> 5, int y -> -3)
 </script>
+<h1>Reassignment and immutable values</h1>
+<script type="text/snapdown">
+s -x> ((String "a"))
+s -> ((String "ab"))
+</script>
 <script>
 Snapdown.renderAll();
 </script>
