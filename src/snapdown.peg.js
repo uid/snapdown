@@ -16,7 +16,7 @@ heap = items:(pointer / value / spaces_lines)* { return items.filter(ok); }
 stacks = first:stack rest:(line thread line stack)* __ { return [ first, ...rest ]; }
 
 // a pointer, written with an arrow of dashes (reassignable) or equal signs (final)
-pointer = source:id _ arrow:arrow _ target:rhs { return { pointer: Object.assign(arrow, { source, target }) }; }
+pointer = source:(type:name " " name:id { return type + ' ' + name; } / id) _ arrow:arrow _ target:rhs { return { pointer: Object.assign(arrow, { source, target }) }; }
 arrow = reassignable / final
 reassignable = "-"+ label:literal? broken:"x"? "-"* ">" { return { mutable: true, broken, label }; }
 final = "="+ label:literal? broken:"x"? "="* ">" { return { mutable: false, broken, label }; }
@@ -49,7 +49,7 @@ string = "\"" string:([^"]* { return text(); }) "\"" { return { string: string }
 
 // primitive values
 primitive = value:(float / integer / boolean / char / null) { return { primitive: value }; }
-integer = [0-9]+ { return parseInt(text()); }
+integer = "-"?[0-9]+ { return parseInt(text()); }
 float = ([0-9]* "." [0-9]+ / [0-9]+ "." [0-9]*) { return parseFloat(text()); }
 boolean = "true" { return true; } / "false" { return false; }
 char = "'" char:(. { return text(); }) "'" { return "'" + char + "'"; }
