@@ -44,7 +44,7 @@ transform.pointer = function(pointer, parent, env) {
   let source = {
     group: 'nodes',
     data: { id: makeid('label'), parent, label: pointer.source },
-    classes: 'label',
+    classes: 'label' + (pointer.source === '_' ? ' hidden' : ''),
   };
   let targets = transform.all(pointer.target);
   let arrows;
@@ -98,7 +98,7 @@ function render(scriptElement) {
   const text = scriptElement.text; // TODO snap.__content;
   const spec = parse(text);
   const elements = transform(spec);
-  
+
   const container = document.createElement('div');
   scriptElement.parentNode.insertBefore(container, scriptElement.nextSibling);
   container.style.width = snap.width || '300px';
@@ -111,7 +111,8 @@ function render(scriptElement) {
       { selector: '.arrow', style: { width: 1, 'line-color': 'black', 'target-arrow-shape': 'triangle', 'target-arrow-color': 'black', 'curve-style': 'segments', 'segment-distances': '0 0', 'segment-weights': '0.001 0.999', 'edge-distances': 'intersection' } },
       { selector: '.object', style: { content: 'data(type)', 'background-opacity': 0, 'border-width': 1, 'border-color': 'black', shape: 'roundrectangle', 'text-valign': 'top', 'text-halign': 'center' } },
       { selector: '.primitive', style: { width: 'label', height: 'label', content: 'data(value)', 'background-opacity': 0, 'text-valign': 'center', 'text-halign': 'center' } },
-      
+
+      { selector: '.label.hidden', style: { width: 1, height: 1, content: '' } },
       { selector: '.object.immutable', style: { 'border-style': 'double', 'border-width': 4, shape: 'roundrectangle' } },
       { selector: '.arrow.immutable', style: { 'segment-weights': '0.001 0.90' } },
       { selector: '.arrow.immutable.outer', style: { width: 3 } },

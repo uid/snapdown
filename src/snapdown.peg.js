@@ -48,11 +48,12 @@ elements = first:rhs rest:(comma_or_line r:rhs { return r; })* { return [ first,
 string = "\"" string:([^"]* { return text(); }) "\"" { return { string: string }; }
 
 // primitive values
-primitive = value:(float / integer / boolean / null) { return { primitive: value }; }
+primitive = value:(float / integer / boolean / char / null) { return { primitive: value }; }
 integer = [0-9]+ { return parseInt(text()); }
 float = ([0-9]* "." [0-9]+ / [0-9]+ "." [0-9]*) { return parseFloat(text()); }
 boolean = "true" { return true; } / "false" { return false; }
-null = "null" { return null; }
+char = "'" char:(. { return text(); }) "'" { return "'" + char + "'"; }
+null = "null" { return "null"; }
 
 // a stack, written top-to-bottom with a sequence of method-declaration-style blocks
 stack = method*
