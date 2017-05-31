@@ -1,19 +1,9 @@
 <html>
 <head>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/2.7.13/cytoscape.js" integrity="sha256-RuoFRV3YQfhh3+WUq57nBnTmJA6Q5Nh6nfSKxwTPCiw=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pegjs/0.9.0/peg.js" integrity="sha256-cwfR02g6XnRmRxZLIwyChnsn4ODrS2uSl6eODJkjrnY=" crossorigin="anonymous"></script> <!-- TODO out of date -->
-<script src="https://cdn.rawgit.com/cpettitt/dagre/v0.7.4/dist/dagre.js"></script>
-<script src="https://rawgit.com/cytoscape/cytoscape.js-dagre/master/cytoscape-dagre.js"></script>
-<script>
-const module = {};
-function require(module) {
-  switch (module) {
-    case 'cytoscape': return window.cytoscape;
-    case 'snapdown-parser': return PEG.buildParser(snapdown_grammar);
-  }
-  throw module;
-}
-</script>
+<meta charset="utf-8"> 
+<script src="https://rawgit.com/OpenKieler/klayjs/0.4.1/klay.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pegjs/0.9.0/peg.js"></script> <!-- TODO out of date -->
+<script src="development.js"></script>
 <script src="../src/snapdown.peg.js"></script>
 <script src="../src/index.js"></script>
 <script> const Snapdown = module.exports; </script>
@@ -58,7 +48,9 @@ correct syntax. -->
 cities -> (Set<Integer> _ -> -7, _ -> 42, _ -> 1024)
 </script>
 <h1>Map</h1>
-<!-- TODO -->
+<script type="text/snapdown">
+turtles -> (Map<String,Turtle> "Buster" = (Turtle), "Buckminster" = (Turtle), "Bob" = (Turtle))
+</script>
 <script>
 Snapdown.renderAll();
 </script>

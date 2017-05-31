@@ -16,7 +16,8 @@ heap = items:(pointer / value / spaces_lines)* { return items.filter(ok); }
 stacks = first:stack rest:(line thread line stack)* __ { return [ first, ...rest ]; }
 
 // a pointer, written with an arrow of dashes (reassignable) or equal signs (final)
-pointer = source:(type:name " " name:id { return type + ' ' + name; } / id) _ arrow:arrow _ target:rhs { return { pointer: Object.assign(arrow, { source, target }) }; }
+pointer = source:lhs _ arrow:arrow _ target:rhs { return { pointer: Object.assign(arrow, { source, target }) }; }
+lhs = blank { return { blank: true }; } / name:reference { return { ref: true, name }; } / type:name " " name:id { return { text: text(), name }; } / name:name { return { text: name, name }; }
 arrow = reassignable / final
 reassignable = "-"+ label:literal? broken:"x"? "-"* ">" { return { mutable: true, broken, label }; }
 final = "="+ label:literal? broken:"x"? "="* ">" { return { mutable: false, broken, label }; }
@@ -38,7 +39,7 @@ pairs = first:pair rest:(comma_or_line p:pair { return p; })* { return { first, 
 values = first:value rest:(comma_or_line v:value { return v; })* { return { first, rest }; }
 
 // pairs, used to draw key-value maps
-pair = left:value _ "=" _ right:value { return { pair: { left, right } }; }
+pair = left:rhs _ "=" _ right:rhs { return { pair: { left, right } }; }
 
 // arrays, written with square brackets
 array = "[" _ elts:elements? _ "]" { return { array: elts || [] }; }
@@ -56,12 +57,13 @@ char = "'" char:(. { return text(); }) "'" { return "'" + char + "'"; }
 null = "null" { return "null"; }
 
 // a stack, written top-to-bottom with a sequence of method-declaration-style blocks
-stack = method*
+stack = method? (line method)*
 method = name "()" __ "{" __ pointers? __ "}"
 
 // a thread label, starting a new stack
 thread = "thread"i spaces label:id { return { thread: label }; }
 
+blank = "_"
 id = reference / name
 reference = "#" [0-9]+ { return text(); }
 name = [a-z0-9_]i+ { return text(); }
@@ -69,9 +71,11 @@ type = name:name "<" params:type_params ">" { return name + "<" + params + ">"; 
 type_params = first:type rest:(_ "," _ type:type { return type; })* { return [first, ...rest].join(', '); }
 literal = "\`" literal:([^\`]* { return text(); }) "\`" { return literal; }
 
+comment = [ \t]* "//" [^\n\r]*
+
 spaces = [ \t]+ { return false; }
-lines = [\n\r]+ { return false; }
-spaces_lines = [ \t\n\r]+ { return false; }
+lines = (comment? [\n\r])+ { return false; }
+spaces_lines = (comment? [ \t\n\r]+)+ { return false; }
 _ = spaces? { return false; }
 __ = spaces_lines? { return false; }
 line = _ lines __ { return false; }

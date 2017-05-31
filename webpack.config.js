@@ -2,6 +2,8 @@
 
 const webpack = require('webpack');
 
+const pkgjson = require('./package.json');
+
 module.exports = {
   entry: {
     'snapdown': './src/index.js',
@@ -23,9 +25,7 @@ module.exports = {
     ],
   },
   plugins: [
-    new webpack.optimize.UglifyJsPlugin({
-      include: /\.min\.js$/,
-      compress: { warnings: true },
-    }),
+    new webpack.optimize.UglifyJsPlugin({ include: /\.min\.js$/ }),
+    new webpack.BannerPlugin(`Snapdown ${pkgjson.version}`),
   ],
 };

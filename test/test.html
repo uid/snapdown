@@ -1,0 +1,37 @@
+<html>
+<head>
+<meta charset="utf-8"> 
+<script src="https://rawgit.com/OpenKieler/klayjs/0.4.1/klay.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pegjs/0.9.0/peg.js"></script> <!-- TODO out of date -->
+<script src="development.js"></script>
+<script src="../src/snapdown.peg.js"></script>
+<script src="../src/index.js"></script>
+<script> const Snapdown = module.exports; </script>
+</head>
+<body id="body">
+<h1>Unit tests</h1>
+
+<p id="instructions">
+Generate <code>dist/unit-tests.js</code> with: <br> <code>npm run-script generate-unit-tests</code>
+</p>
+
+<script src="../dist/unit-tests.js"></script>
+<script>
+if (typeof unit_tests !== 'undefined') {
+  instructions.parentNode.removeChild(instructions);
+}
+body.appendChild(document.createElement('p')).textContent = `generated ${new Date(generated)}`;
+Object.keys(unit_tests).sort().forEach(file => {
+  let div = body.appendChild(document.createElement('div'));
+  div.appendChild(document.createElement('h2')).textContent = file;
+  let script = div.appendChild(document.createElement('script'));
+  script.setAttribute('type', 'text/snapdown');
+  script.textContent = unit_tests[file];
+});
+</script>
+
+<script>
+Snapdown.renderAll();
+</script>
+</body>
+</html>
