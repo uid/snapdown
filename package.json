@@ -1,0 +1,30 @@
+{
+  "name": "snapdown",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Draw snapshot diagrams with plain text",
+  "homepage": "http://maxg.github.io/snapdown/",
+  "repository": "github:maxg/snapdown",
+  "license": "MIT",
+  "author": "Max Goldman <maxg@mit.edu>",
+  "contributors": [
+    "Aaron Zeng <a2z@mit.edu>"
+  ],
+  "scripts": {
+    "gen-parser": "node -p 'require(\"./src/snapdown.peg.js\")' | pegjs -o dist/snapdown-parser.js",
+    "test": "npm run gen-parser && mocha",
+    "build": "npm run gen-parser && webpack --mode development snapdown=./src/index.js && webpack --mode production snapdown.min=./src/index.js"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.4",
+    "babel-preset-env": "^1.7.0",
+    "elkjs": "^0.3.0",
+    "mocha": "^5.2.0",
+    "pegjs": "^0.10.0",
+    "webpack": "^4.10.2",
+    "webpack-cli": "^3.0.1",
+    "yaml-front-matter": "^4.0.0"
+  }
+}
