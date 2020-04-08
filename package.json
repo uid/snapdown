@@ -18,13 +18,13 @@
   "dependencies": {},
   "devDependencies": {
     "babel-core": "^6.26.3",
-    "babel-loader": "^7.1.4",
+    "babel-loader": "^7.1.5",
     "babel-preset-env": "^1.7.0",
-    "elkjs": "^0.3.0",
+    "elkjs": "^0.6.2",
     "mocha": "^5.2.0",
     "pegjs": "^0.10.0",
-    "webpack": "^4.10.2",
-    "webpack-cli": "^3.0.1",
-    "yaml-front-matter": "^4.0.0"
+    "webpack": "^4.42.0",
+    "webpack-cli": "^3.3.11",
+    "yaml-front-matter": "^4.1.0"
   }
 }
