@@ -67,6 +67,7 @@ function drawableHeap(heap) {
 function incorporate(e, graph, showHashRefs=false) {
   // pointer
   if (e.name) {
+    let nodeSpacing = 20;
     let isHashRef = e.name.ref.startsWith('#');
     if (e.name.ref && isHashRef && !showHashRefs) { return; } // TODO can we unnest name: { ref: x } to name: x somewhere?
     let ptr = Object.assign({
@@ -74,6 +75,7 @@ function incorporate(e, graph, showHashRefs=false) {
       layoutOptions: {
         'elk.nodeLabels.placement': 'INSIDE V_TOP H_CENTER',
         'elk.nodeSize.constraints': 'MINIMUM_SIZE',
+        'elk.position': `(${nodeSpacing * graph.children.length}, 0)`,
       },
       labels: isHashRef ? [] : makeLabels(e.name.ref)
     }, e);
@@ -90,6 +92,7 @@ function incorporate(e, graph, showHashRefs=false) {
       layoutOptions: {
         'elk.nodeLabels.placement': 'INSIDE V_TOP H_CENTER',
         'elk.nodeSize.constraints': 'NODE_LABELS MINIMUM_SIZE',
+        'elk.layered.crossingMinimization.semiInteractive': true,
       },
       labels,
       children: [],
