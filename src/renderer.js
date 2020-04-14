@@ -64,17 +64,18 @@ function drawableHeap(heap) {
   return graph;
 }
 
-function incorporate(e, graph) {
+function incorporate(e, graph, showHashRefs=false) {
   // pointer
   if (e.name) {
-    if (e.name.ref && e.name.ref.startsWith('#')) { return; } // TODO can we unnest name: { ref: x } to name: x somewhere?
+    let isHashRef = e.name.ref.startsWith('#');
+    if (e.name.ref && isHashRef && !showHashRefs) { return; } // TODO can we unnest name: { ref: x } to name: x somewhere?
     let ptr = Object.assign({
       id: makeID('ptr'),
       layoutOptions: {
         'elk.nodeLabels.placement': 'INSIDE V_TOP H_CENTER',
         'elk.nodeSize.constraints': 'MINIMUM_SIZE',
       },
-      labels: makeLabels(e.name.ref)
+      labels: isHashRef ? [] : makeLabels(e.name.ref)
     }, e);
     graph.children.push(ptr);
     graph.edges.push(Object.assign({ id: makeID('edge'), sources: [ ptr.id ], targets: [ ptr.target.to ] }, e));
@@ -102,7 +103,7 @@ function incorporate(e, graph) {
       });
     }
     graph.children.push(obj);
-    obj.fields.forEach(f => incorporate(f, obj));
+    obj.fields.forEach(f => incorporate(f, obj, true));
     return;
   }
   

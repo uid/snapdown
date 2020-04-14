@@ -36,11 +36,12 @@ function flatten(e, ancestors) {
   // object: flatten fields
   if (e.object) {
     let fields = flattenAll(e.fields.map(f => {
-      // create blank pointers for non-pointer fields
-      if ( ! f.name) { return { name: {}, target: f }; }
+      // create blank pointers for non-pointer, non-primitive fields
+      if ( ! f.name && (f.object || f.array)) { return { name: {}, target: f }; }
+      if (f.val && !(f.object || f.array)) { return Object.assign({}, f, { inside: true }); }
       return f;
     }), ancestors);
-    return [ Object.assign({}, e, { fields: fields.filter(f => f.name) }), ...fields.filter(f => ! f.name) ];
+    return [ Object.assign({}, e, { fields: fields.filter(f => f.name || f.inside) }), ...fields.filter(f => ! f.name && !f.inside) ];
   }
   
   // array: TODO DUPLICATED object.fields -> array.array
