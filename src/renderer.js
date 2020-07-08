@@ -102,7 +102,7 @@ function incorporate(e, graph, showHashRefs=false) {
       // TODO understand WTF is going on here
       // the axes are flipped for nodes w/ childen vs. w/o, so only do this when there are fields?!
       Object.assign(obj.layoutOptions, {
-        'elk.nodeSize.minimum': `0,${Math.max.apply(null, labels.map(l => l.width))}`,
+        'elk.nodeSize.minimum': `0,${Math.max.apply(null, labels.map(l => l.width * 1.5))}`,
       });
     }
     graph.children.push(obj);

@@ -62,7 +62,21 @@ function flatten(e, ancestors) {
 
 function lookupRef(ref, ancestors) {
   let defn = ancestors.find(a => a.name && a.name.ref === ref);
-  if ( ! defn) { throw new Error(`Snapdown cannot lookup: ${ref}`); }
+  if ( ! defn) {
+    let fieldsFound = false;
+    for (var elt of ancestors) {
+      if (elt.target && elt.target.fields) {
+        defn = elt.target.fields.find(a => a.name && a.name.ref === ref);
+        if (defn) {
+          fieldsFound = true;
+          break;
+        }
+      }
+    }
+    if ( ! fieldsFound) {
+      throw new Error(`Snapdown cannot lookup: ${ref}`);
+    }
+  }
   if (defn.target.ref) { return lookupRef(defn.target.ref, ancestors); }
   return identify(defn.target);
 }
