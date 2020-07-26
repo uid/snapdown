@@ -26,8 +26,13 @@ function parseText(scriptElement) {
   let text = script.__content;
   let spec = transformer.parse(text);
   let snap = transformer.transform(spec);
-  scriptElement.text = JSON.stringify(snap);
-  scriptElement.type = 'application/snapdown+json';
+
+  let jsonElement = document.createElement("script");
+  jsonElement.text = JSON.stringify(snap);
+  jsonElement.type = 'application/snapdown+json';
+  jsonElement.id = (Math.random() + 1).toString(36).substring(7);
+  scriptElement.parentNode.append(jsonElement);
+  return jsonElement;
 }
 
 // layout and render Snapdown JSON
@@ -37,9 +42,11 @@ function renderJSON(jsonElement) {
   }
   let snap = JSON.parse(jsonElement.text);
   let graph = renderer.drawable(snap);
+  let id = (Math.random() + 1).toString(36).substring(7);
   elk.instance.layout(graph).then(graph => {
-    renderer.draw(jsonElement, graph);
+    renderer.draw(jsonElement, graph, id);
   });
+  return id;
 }
 
 function render(elt) {
@@ -48,8 +55,16 @@ function render(elt) {
 }
 
 function renderAll() {
-  Array.prototype.slice.call(document.querySelectorAll(scriptSelector)).forEach(parseText);
-  Array.prototype.slice.call(document.querySelectorAll(jsonSelector)).forEach(renderJSON);
+  let scriptElements = Array.from(document.querySelectorAll(scriptSelector));
+  let created = [];
+  scriptElements.map(x => {
+    let y = parseText(x);
+    created.push(y.id);
+    let graphId = renderJSON(y);
+    created.push(graphId);
+  });
+
+  return created;
 }
 
 module.exports = { render, renderAll };

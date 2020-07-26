@@ -148,8 +148,9 @@ function makeLabels(text) {
   return [ { text, width, height } ];
 }
 
-function draw(nearby, graph) {
+function draw(nearby, graph, id) {
   let root = createSVGRoot();
+  root.id = id;
   nearby.parentNode.insertBefore(root, nearby.nextSibling);
   [ 'width', 'height' ].forEach(attr => root.setAttribute(attr, graph[attr]));
   

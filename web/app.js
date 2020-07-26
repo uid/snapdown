@@ -6,16 +6,27 @@ import { TextField } from '@material-ui/core';
 class App extends React.Component {
   constructor(props) {
     super(props);
+    this.state = { error: false, created: [] };
   }
 
   redraw(newText) {
+    this.state.created.map(x => { document.getElementById(x).remove(); })
+    let created = [];
+
     const scriptSelector = 'script[type="application/snapdown"]';
     let scriptElement = document.querySelector(scriptSelector);
     console.log(scriptElement);
     scriptElement.text = newText;
     console.log(newText);
 
-    Snapdown.renderAll();
+    try {
+      created = Snapdown.renderAll();
+      console.log(created);
+      this.setState({ error: false, created: created });
+    } catch (err) {
+      console.log(err);
+      this.setState({ error: true, created: created });
+    }
   }
 
   render() {
@@ -28,6 +39,9 @@ class App extends React.Component {
           multiline={true}
         />
         <script type="application/snapdown" />
+        {this.state.error && (
+          <div>Error occurred.</div>
+        )}
       </div>
     );
   }

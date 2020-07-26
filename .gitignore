@@ -1,2 +1,4 @@
 .vagrant
 node_modules
+dist/main*
+static

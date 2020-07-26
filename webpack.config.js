@@ -15,6 +15,7 @@ module.exports = [
     output: {
       path: abs('dist'), filename: '[name].js', library: 'Snapdown',
     },
+    devtool: "source-map",
     module: {
       rules: [
         {
@@ -45,6 +46,7 @@ module.exports = [
     output: {
       path: abs('static'), filename: '[name].js', library: 'SnapdownWeb',
     },
+    devtool: "source-map",
     module: {
       rules: [
         {
