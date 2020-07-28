@@ -10,7 +10,10 @@ class App extends React.Component {
   }
 
   redraw(newText) {
-    this.state.created.map(x => { document.getElementById(x).remove(); })
+    this.state.created.map(x => {
+      let element = document.getElementById(x);
+      if (element) element.remove();
+    });
     let created = [];
 
     const scriptSelector = 'script[type="application/snapdown"]';

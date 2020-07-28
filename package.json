@@ -14,7 +14,7 @@
     "gen-parser": "node -p 'require(\"./src/snapdown.peg.js\")' | pegjs -o dist/snapdown-parser.js",
     "test": "npm run gen-parser && mocha",
     "build": "npm run gen-parser && webpack --mode development snapdown=./src/index.js && webpack --mode production snapdown.min=./src/index.js",
-    "start": "webpack -w"
+    "start": "webpack -w --mode development"
   },
   "dependencies": {
     "@material-ui/core": "^4.11.0",
