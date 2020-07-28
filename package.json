@@ -13,7 +13,7 @@
   "scripts": {
     "gen-parser": "node -p 'require(\"./src/snapdown.peg.js\")' | pegjs -o dist/snapdown-parser.js",
     "test": "npm run gen-parser && mocha",
-    "build": "npm run gen-parser && webpack --mode development snapdown=./src/index.js && webpack --mode production snapdown.min=./src/index.js",
+    "build": "npm run gen-parser && webpack --mode production",
     "start": "webpack -w --mode development"
   },
   "dependencies": {
