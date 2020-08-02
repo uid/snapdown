@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from "react-dom";
 
-import { TextField } from '@material-ui/core';
+import { TextField, Button } from '@material-ui/core';
 
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { error: false, created: [] };
+    this.state = { error: false, snapdownText: "", created: [] };
   }
 
   redraw(newText) {
@@ -32,19 +32,32 @@ class App extends React.Component {
     }
   }
 
+  componentDidMount() {
+    if (window.location.hash) {
+      let snapdownText = decodeURIComponent(window.location.hash.substring(1));
+      this.setState({ snapdownText: snapdownText });
+      this.redraw(snapdownText);
+    }
+  }
+
   render() {
     return (
-      <div style={{ "display": "flex", "flexDirection": "row" }}>
-        <TextField
-          onChange={event => {
-            this.redraw(event.target.value);
-          }}
-          multiline={true}
-        />
-        <script type="application/snapdown" />
-        {this.state.error && (
-          <div>Error occurred.</div>
-        )}
+      <div>
+        <div style={{ "display": "flex", "flexDirection": "row" }}>
+          <TextField
+            onChange={event => {
+              this.setState({ snapdownText: event.target.value });
+              window.location.hash = event.target.value;
+              this.redraw(event.target.value);
+            }}
+            defaultValue={this.state.snapdownText}
+            multiline={true}
+          />
+          <script type="application/snapdown" />
+          {this.state.error && (
+            <div>Error occurred.</div>
+          )}
+        </div>
       </div>
     );
   }
