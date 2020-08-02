@@ -68,7 +68,7 @@ function incorporate(e, graph, showHashRefs=false) {
   // pointer
   if (e.name) {
     let nodeSpacing = 20;
-    let isHashRef = e.name.ref.startsWith('#');
+    let isHashRef = e.name.ref && e.name.ref.startsWith('#');
     if (e.name.ref && isHashRef && !showHashRefs) { return; } // TODO can we unnest name: { ref: x } to name: x somewhere?
     let ptr = Object.assign({
       id: makeID('ptr'),

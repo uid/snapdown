@@ -11,7 +11,7 @@ const identify = function() {
 
 function transform(spec) {
   return {
-    heap: transformHeap(spec.heap),
+    heap: transformHeap(spec.heap.map(x => Object.assign({}, x, { id: identify(x) }))),
   };
 }
 
@@ -28,7 +28,7 @@ function flatten(e, ancestors) {
   // pointer: lookup reference or flatten inline target
   if (e.name) {
     if (e.target.ref) {
-      return [ Object.assign({}, e, { target: { to: lookupRef(e.target.ref, ancestors) } }) ];
+      return [ Object.assign({}, e, { target: { to: lookupRef(e.target.ref, ancestors, []) } }) ];
     }
     return [ Object.assign({}, e, { target: { to: identify(e.target) } }), ...flatten(e.target, ancestors) ];
   }
@@ -60,7 +60,7 @@ function flatten(e, ancestors) {
   throw new Error(`Snapdown cannot flatten: ${Object.keys(e)}`);
 }
 
-function lookupRef(ref, ancestors) {
+function lookupRef(ref, ancestors, visited) {
   let defn = ancestors.find(a => a.name && a.name.ref === ref);
   if ( ! defn) {
     let fieldsFound = false;
@@ -77,8 +77,17 @@ function lookupRef(ref, ancestors) {
       throw new Error(`Snapdown cannot lookup: ${ref}`);
     }
   }
-  if (defn.target.ref) { return lookupRef(defn.target.ref, ancestors); }
-  return identify(defn.target);
+
+  let id = identify(defn.target);
+  if (defn.target.ref && !visited.includes(id)) {
+    // if this target hasn't been visited, keep going
+    return lookupRef(defn.target.ref, ancestors, [ id, ...visited ]);
+  } else if (visited.includes(id)) {
+    // if we're caught in a "cycle", just point at this definition, no matter what it is
+    return identify(defn);
+  } else {
+    return id;
+  }
 }
 
 function parse(text) {

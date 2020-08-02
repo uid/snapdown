@@ -54,6 +54,8 @@ function render(elt) {
   renderJSON(elt);
 }
 
+// returns IDs of all newly-created elements
+// i.e., the JSON and SVG elements
 function renderAll() {
   let scriptElements = Array.from(document.querySelectorAll(scriptSelector));
   let created = [];
