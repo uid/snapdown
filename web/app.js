@@ -47,7 +47,8 @@ class App extends React.Component {
           <TextField
             onChange={event => {
               this.setState({ snapdownText: event.target.value });
-              window.location.hash = event.target.value;
+              let baseUrl = window.location.href.split('#')[0];
+              window.location.replace( baseUrl + '#' + event.target.value );
               this.redraw(event.target.value);
             }}
             defaultValue={this.state.snapdownText}
@@ -58,6 +59,12 @@ class App extends React.Component {
             <div>Error occurred.</div>
           )}
         </div>
+        <br />
+        <Button variant="contained" onClick={() => {
+          navigator.clipboard.writeText(window.location.href);
+        }}>
+          Copy Direct URL
+        </Button>
       </div>
     );
   }
