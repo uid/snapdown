@@ -21,6 +21,7 @@ function createSVGRoot() {
     <style>
     rect.snap-obj { stroke: black; fill: none; }
     path.snap-arrow { stroke: black; fill: none; marker-end: url(#snap-arrowhead); }
+    path.snap-x { stroke: red; stroke-width: 2; fill: none }
     #snap-arrowhead { stroke: black; fill: none; }
     .snap-immutable { filter: url(#snap-double); }
     text { font-family: sans-serif; font-size: 12pt; text-anchor: start; alignment-baseline: hanging; }
@@ -192,7 +193,28 @@ function drawEdge(parent, edge) {
     ...(s.bendPoints || []).map(bend => `L ${bend.x} ${bend.y}`),
     'L', s.endPoint.x, s.endPoint.y,
   ].join(' ')).join(' '));
+  console.log(path);
   parent.append(path);
+
+  if (edge.crossed) {
+    var midpoint = path.getPointAtLength(path.getTotalLength() / 2);
+    var cross = createSVG('path', 'snap-x');
+
+    const crossSize = 8;
+    const pointTypes = ['M', 'L', 'M', 'L'];
+    const crossXs = [-crossSize, crossSize, -crossSize, crossSize];
+    const crossYs = [-crossSize, crossSize, crossSize, -crossSize];
+
+    cross.setAttribute(
+      'd',
+      [].concat
+        .apply(
+          [], [...Array(4).keys()].map(i => [pointTypes[i], midpoint.x + crossXs[i], midpoint.y + crossYs[i]])
+        )
+        .join(' ')
+    );
+    parent.append(cross);
+  }
 }
 
 module.exports = { drawable, draw };

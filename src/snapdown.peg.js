@@ -11,9 +11,11 @@ heap = vals:($* it:(pointer / value) { return it })* { return vals }
 
 pointer = name:lhs _? arrow:arrow _? target:rhs { return merge({ name, target }, arrow) }
 lhs = blank / ref
-arrow = reassignable / final
+arrow = reassignable / final / crossed / finalcrossed
 reassignable = "-"+ ">" { return {} }
 final = "="+ ">" { return { immutable: true } }
+crossed = "-"+ "x" ">" { return { crossed: true } }
+finalcrossed = "="+ "x" ">" { return { immutable: true, crossed: true } }
 
 rhs = value / ref
 value = object / array / string / primitive
