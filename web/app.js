@@ -48,7 +48,7 @@ class App extends React.Component {
             onChange={event => {
               this.setState({ snapdownText: event.target.value });
               let baseUrl = window.location.href.split('#')[0];
-              window.location.replace( baseUrl + '#' + event.target.value );
+              window.location.replace( baseUrl + '#' + encodeURIComponent(event.target.value) );
               this.redraw(event.target.value);
             }}
             defaultValue={this.state.snapdownText}
