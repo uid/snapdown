@@ -18,16 +18,12 @@ class App extends React.Component {
 
     const scriptSelector = 'script[type="application/snapdown"]';
     let scriptElement = document.querySelector(scriptSelector);
-    console.log(scriptElement);
     scriptElement.text = newText;
-    console.log(newText);
 
     try {
       created = Snapdown.renderAll();
-      console.log(created);
       this.setState({ error: false, created: created });
     } catch (err) {
-      console.log(err);
       this.setState({ error: true, created: created });
     }
   }

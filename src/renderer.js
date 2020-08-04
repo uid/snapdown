@@ -66,20 +66,23 @@ function drawableHeap(heap) {
 }
 
 function incorporate(e, graph, showHashRefs=false) {
+  const nodeSpacing = 20;
+
   // pointer
   if (e.name) {
-    let nodeSpacing = 20;
     let isHashRef = e.name.ref && e.name.ref.startsWith('#');
     if (e.name.ref && isHashRef && !showHashRefs) { return; } // TODO can we unnest name: { ref: x } to name: x somewhere?
     let ptr = Object.assign({
       id: makeID('ptr'),
-      layoutOptions: {
-        'elk.nodeLabels.placement': 'INSIDE V_TOP H_CENTER',
-        'elk.nodeSize.constraints': 'MINIMUM_SIZE',
-        'elk.position': `(${nodeSpacing * graph.children.length}, 0)`,
-      },
       labels: isHashRef ? [] : makeLabels(e.name.ref)
     }, e);
+
+    if (!ptr.layoutOptions) ptr.layoutOptions = {};
+    ptr.layoutOptions = Object.assign({
+      'elk.nodeLabels.placement': 'INSIDE V_TOP H_CENTER',
+      'elk.nodeSize.constraints': 'MINIMUM_SIZE',
+    }, ptr.layoutOptions);
+
     graph.children.push(ptr);
     graph.edges.push(Object.assign({ id: makeID('edge'), sources: [ ptr.id ], targets: [ ptr.target.to ] }, e));
     return;
@@ -107,7 +110,14 @@ function incorporate(e, graph, showHashRefs=false) {
       });
     }
     graph.children.push(obj);
-    obj.fields.forEach(f => incorporate(f, obj, true));
+    obj.fields.forEach((f, i) => {
+      // assign default position to each field
+      if (!f.layoutOptions) f.layoutOptions = {};
+      f.layoutOptions = Object.assign({
+        'elk.position': `(${nodeSpacing * i}, 0)`
+      }, f.layoutOptions);
+      incorporate(f, obj, true);
+    });
     return;
   }
   
@@ -115,11 +125,13 @@ function incorporate(e, graph, showHashRefs=false) {
   if (e.array) {
     let arr = Object.assign({
       id: makeID('arr'),
+      layoutOptions: {
+        'elk.layered.crossingMinimization.semiInteractive': true,
+      },
       children: [],
       edges: [],
     }, e);
     graph.children.push(arr);
-    // TODO order matters, push cell children instead
     arr.array.forEach(f => incorporate(f, arr));
     return;
   }
@@ -162,12 +174,13 @@ function drawAtom(parent, atom) {
   let group = createSVG('g');
   group.setAttribute('transform', 'translate(' + atom.x + ',' + atom.y + ')');
   
-  // object
-  if (atom.object) {
+  // objects and arrays
+  if (atom.object || atom.array) {
     let rect = createSVG('rect', 'snap-obj');
     [ 'width', 'height' ].forEach(attr => rect.setAttribute(attr, atom[attr]));
     rect.setAttribute('rx', 20);
-    if (atom.immutable) { rect.classList.add('snap-immutable'); }
+    // TODO what if arrays aren't immutable?
+    if (atom.immutable || atom.array) { rect.classList.add('snap-immutable'); }
     group.append(rect);
   }
   
@@ -193,7 +206,6 @@ function drawEdge(parent, edge) {
     ...(s.bendPoints || []).map(bend => `L ${bend.x} ${bend.y}`),
     'L', s.endPoint.x, s.endPoint.y,
   ].join(' ')).join(' '));
-  console.log(path);
   parent.append(path);
 
   if (edge.crossed) {
