@@ -132,7 +132,14 @@ function incorporate(e, graph, showHashRefs=false) {
       edges: [],
     }, e);
     graph.children.push(arr);
-    arr.array.forEach(f => incorporate(f, arr));
+    arr.array.forEach((f, i) => {
+      // assign default position to each field
+      if (!f.layoutOptions) f.layoutOptions = {};
+      f.layoutOptions = Object.assign({
+        'elk.position': `(${nodeSpacing * i}, 0)`
+      }, f.layoutOptions);
+      incorporate(f, arr, true);
+    });
     return;
   }
   
