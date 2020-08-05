@@ -9,12 +9,13 @@ const identify = (function () {
   };
 })();
 
+let claimed = {},
+  unclaimed = {},
+  ptrCounter = 0;
+
 const identifyPtrSource = (function () {
-  let claimed = {},
-    unclaimed = {},
-    counter = 0;
   return function identifyPtrSource(e) {
-    let newId = e.id || `ptr${++counter}`;
+    let newId = e.id || `ptr${++ptrCounter}`;
 
     // does this pointer need "claiming", i.e. is it crossed-out or
     // intentionally specified to ignore name-binding?
@@ -43,6 +44,10 @@ const identifyPtrSource = (function () {
 })();
 
 function transform(spec) {
+  // hack: each time this function is called, clear the globals...
+  claimed = {};
+  unclaimed = {};
+  ptrCounter = 0;
   return {
     heap: transformHeap(
       spec.heap.map((x) => Object.assign({}, x, { id: identify(x) }))
