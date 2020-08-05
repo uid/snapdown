@@ -9,6 +9,39 @@ const identify = function() {
   };
 }();
 
+const identifyPtrSource = (function () {
+  let claimed = {},
+    unclaimed = {},
+    counter = 0;
+  return function identifyPtrSource(e) {
+    let newId = e.id || `ptr${++counter}`;
+
+    // does this pointer need "claiming", i.e. is it crossed-out or
+    // intentionally specified to ignore name-binding?
+    let needsClaiming = e.crossed;
+    if (needsClaiming) {
+      if (e.name.ref in claimed) return claimed[e.name.ref];
+      else if (e.name.ref in unclaimed) return unclaimed[e.name.ref];
+      else {
+        e.independent = true;
+        return (unclaimed[e.name.ref] = newId);
+      }
+    } else {
+      if (e.name.ref in claimed) {
+        e.independent = true;
+        return newId;
+      } else if (e.name.ref in unclaimed) {
+        claimed[e.name.ref] = unclaimed[e.name.ref];
+        delete unclaimed[e.name.ref];
+        return claimed[e.name.ref];
+      } else {
+        e.independent = true;
+        return (claimed[e.name.ref] = newId);
+      }
+    }
+  };
+})();
+
 function transform(spec) {
   return {
     heap: transformHeap(spec.heap.map(x => Object.assign({}, x, { id: identify(x) }))),
@@ -28,9 +61,9 @@ function flatten(e, ancestors) {
   // pointer: lookup reference or flatten inline target
   if (e.name) {
     if (e.target.ref) {
-      return [ Object.assign({}, e, { target: { to: lookupRef(e.target.ref, ancestors, []) } }) ];
+      return [ Object.assign({}, e, { source: identifyPtrSource(e), target: { to: lookupRef(e.target.ref, ancestors, []) } }) ];
     }
-    return [ Object.assign({}, e, { target: { to: identify(e.target) } }), ...flatten(e.target, ancestors) ];
+    return [ Object.assign({}, e, { source: identifyPtrSource(e), target: { to: identify(e.target) } }), ...flatten(e.target, ancestors) ];
   }
   
   // object: flatten fields

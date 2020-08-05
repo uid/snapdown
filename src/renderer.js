@@ -81,8 +81,8 @@ function incorporate(e, graph, showHashRefs = false) {
     } // TODO can we unnest name: { ref: x } to name: x somewhere?
     let ptr = Object.assign(
       {
-        id: makeID("ptr"),
-        labels: isHashRef ? [] : makeLabels(e.name.ref),
+        id: e.source,
+        labels: isHashRef || !e.independent ? [] : makeLabels(e.name.ref),
       },
       e
     );
@@ -99,7 +99,7 @@ function incorporate(e, graph, showHashRefs = false) {
     graph.children.push(ptr);
     graph.edges.push(
       Object.assign(
-        { id: makeID("edge"), sources: [ptr.id], targets: [ptr.target.to] },
+        { id: makeID("edge"), sources: [ptr.source], targets: [ptr.target.to] },
         e
       )
     );
@@ -274,7 +274,7 @@ function drawEdge(parent, edge) {
     var midpoint = path.getPointAtLength(path.getTotalLength() / 2);
     var cross = createSVG("path", "snap-x");
 
-    const crossSize = 8;
+    const crossSize = 5;
     const pointTypes = ["M", "L", "M", "L"];
     const crossXs = [-crossSize, crossSize, -crossSize, crossSize];
     const crossYs = [-crossSize, crossSize, crossSize, -crossSize];
