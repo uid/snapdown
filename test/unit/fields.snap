@@ -1,0 +1,8 @@
+(
+Whatever
+a -> 5 // points to primitive 5
+b => x // points to value of x
+c => `x` // incorrect, points to variable x
+d -> (Whatever) // points to a Whatever
+)
+x -> (Whatever)

@@ -1,0 +1,4 @@
+x -> ((String)) // reassignable
+x -`hello`> ((String)) // incorrect, labeled arrow
+x -x> ((String)) // broken arrow
+x => ((String)) // final

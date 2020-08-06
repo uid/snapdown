@@ -1,0 +1,61 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <script src="https://rawgit.com/OpenKieler/klayjs/0.4.1/klay.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pegjs/0.9.0/peg.js"></script>
+    <!-- TODO out of date -->
+    <script src="development.js"></script>
+    <script src="../src/snapdown.peg.js"></script>
+    <script src="../src/index.js"></script>
+    <script>
+      const Snapdown = module.exports;
+    </script>
+  </head>
+  <body>
+    <h1>Primitive values</h1>
+    <script type="text/snapdown">
+      _ -> 3
+      _ -> 5.0
+      _ -> 'c'
+      _ -> null
+    </script>
+    <h1>Object values</h1>
+    <script type="text/snapdown">
+      _ -> (Point)
+      _ -> (Point x -> 5, y -> -3)
+      _ -> (Point int x -> 5, int y -> -3)
+    </script>
+    <h1>Reassignment and immutable values</h1>
+    <script type="text/snapdown">
+      s -x> ((String "a"))
+      s -> ((String "ab"))
+    </script>
+    <h1>Mutable values</h1>
+    <!-- TODO need a syntax for crossing out old values -->
+    <script type="text/snapdown">
+      sb -> (StringBuilder "a", "ab")
+    </script>
+    <h1>Immutable references</h1>
+    <script type="text/snapdown">
+      _ -> (Person id => 9208484, age -> 19)
+    </script>
+    <h1>List</h1>
+    <script type="text/snapdown">
+      cities -> (List<String> 0 -> "Boston", 1 -> "Bogotá", 2 -> "Barcelona")
+    </script>
+    <h1>Set</h1>
+    <!-- FIXME how to disambiguate between values that should be inside the bubble vs.
+values outside? We would probably like (Set<Integer> -7, 42, 1024) to be the
+correct syntax. -->
+    <script type="text/snapdown">
+      cities -> (Set<Integer> _ -> -7, _ -> 42, _ -> 1024)
+    </script>
+    <h1>Map</h1>
+    <script type="text/snapdown">
+      turtles -> (Map<String,Turtle> "Buster" = (Turtle), "Buckminster" = (Turtle), "Bob" = (Turtle))
+    </script>
+    <script>
+      Snapdown.renderAll();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+(Mutable)
+((Immutable))
+(
+MyFirstADT
+foo -> (MySecondADT)
+)
