@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="../docs/snapdown.css">
+<script src="https://unpkg.com/js-yaml@3.10.0/dist/js-yaml.js"></script>
+<script src="https://unpkg.com/yaml-front-matter@4.0.0/dist/yamlFront.js"></script>
+<script src="https://unpkg.com/elkjs@0.6.2/lib/elk-api.js"></script>
+<script src="https://github.com/pegjs/pegjs/releases/download/v0.10.0/peg-0.10.0.min.js"></script>
+<script src="../web/development.js"></script>
+<script src="../src/snapdown.peg.js"></script> <script>Grammar = module.exports</script>
+<script src="../src/transformer.js"></script>  <script>Transformer = module.exports</script>
+<script src="../src/renderer.js"></script>     <script>Renderer = module.exports</script>
+<script src="../src/index.js"></script>        <script>Snapdown = module.exports</script>
+<script>ELK_WORKER_URL = 'https://unpkg.com/elkjs@0.6.2/lib/elk-worker.js';</script>
+</head>
+<body>
+<h1>Arrays</h1>
+<script type="application/snapdown">
+a -> [ 0, 1, 2 ]
+b -> [ (Foo), (Foo), (Foo) ]
+c -> [ #1, #1, #1 ]
+#1 -> (Foo)
+</script>
+<h1>Fields</h1>
+<script type="application/snapdown">
+(
+Whatever
+a -> 5 // points to primitive 5
+b => x // points to value of x
+// NOT SUPPORTED YET
+// c => `x` // incorrect, points to variable x
+d -> (Whatever) // points to a Whatever
+)
+x -> (Whatever)
+</script>
+<h1>Heap</h1>
+<script type="application/snapdown">
+a -> ((String))
+
+// NOT SUPPORTED YET
+// main() { 
+// }
+</script>
+<h1>Lists</h1>
+<script type="application/snapdown">
+d -> (List 0 -> "a", 1 -> "b")
+</script>
+<h1>Maps</h1>
+<script type="application/snapdown">
+// NOT SUPPORTED YET
+// f -> (Map x = a, "b" = null)
+f -> (Map)
+x -> ((String))
+a -> ((String))
+g -> ((Map _ => f)) // immutable wrapper, no field name
+</script>
+<h1>ADTs</h1>
+<script type="application/snapdown">
+(Mutable)
+((Immutable))
+(
+MyFirstADT
+foo -> (MySecondADT)
+)
+</script>
+<h1>Sets</h1>
+<script type="application/snapdown">
+cities -> (Set<Integer> -7, 42, 1024)
+cities -> (Set<Integer> _ -> -7, _ -> 42, _ -> 1024)
+// NOT SUPPORTED YET
+// cities -> (Set<Integer> -7, 42, 1024, size -> 3)
+</script>
+<h1>Stack Frames</h1>
+<script type="application/snapdown">
+x -> (Whatever)
+
+// NOT SUPPORTED YET
+// topOfStack() {
+// this -> x
+// foo -> 5
+// }
+// lowerInStack() {}
+// main() {}
+</script>
+<h1>Threads</h1>
+<script type="application/snapdown">
+// NOT SUPPORTED YET
+// topOfStack() {}
+// lowerInStack() {}
+// main() {}
+
+// thread worker
+
+// helper() {}
+// run() {}
+</script>
+<h1>Variables</h1>
+<script type="application/snapdown">
+x -> ((String)) // reassignable
+// NOT SUPPORTED YET
+// x -`hello`> ((String)) // incorrect, labeled arrow
+x -x> ((String)) // broken arrow
+x => ((String)) // final
+</script>
+<script>
+Snapdown.renderAll();
+</script>
+</body>
+</html>

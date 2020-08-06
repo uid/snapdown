@@ -31,7 +31,7 @@ function parseText(scriptElement) {
   jsonElement.text = JSON.stringify(snap);
   jsonElement.type = 'application/snapdown+json';
   jsonElement.id = (Math.random() + 1).toString(36).substring(7);
-  scriptElement.parentNode.append(jsonElement);
+  scriptElement.parentNode.insertBefore(jsonElement, scriptElement);
   return jsonElement;
 }
 
