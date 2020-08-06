@@ -24,6 +24,7 @@ function createSVGRoot() {
     </defs>
     <style>
     rect.snap-obj { stroke: black; fill: none; }
+    path.snap-separator { stroke: black; fill: none; }
     path.snap-arrow { stroke: black; fill: none; marker-end: url(#snap-arrowhead); }
     path.snap-x { stroke: red; stroke-width: 2; fill: none }
     #snap-arrowhead { stroke: black; fill: none; }
@@ -225,9 +226,19 @@ function drawAtom(parent, atom) {
   if (atom.object || atom.array) {
     let rect = createSVG("rect", "snap-obj");
     ["width", "height"].forEach((attr) => rect.setAttribute(attr, atom[attr]));
-    rect.setAttribute("rx", 20);
-    // TODO what if arrays aren't immutable?
-    if (atom.immutable || atom.array) {
+    if (atom.object) {
+      rect.setAttribute("rx", 20);
+    }
+    if (atom.array) {
+      for (let i = 1; i < atom.children.length; i++) {
+        drawSeparator(
+          group,
+          i * (atom.width / atom.children.length),
+          atom.height
+        );
+      }
+    }
+    if (atom.immutable) {
       rect.classList.add("snap-immutable");
     }
     group.append(rect);
@@ -239,6 +250,12 @@ function drawAtom(parent, atom) {
   parent.append(group);
 }
 
+function drawSeparator(parent, x, height) {
+  let path = createSVG("path", "snap-separator");
+  path.setAttribute("d", `M ${x} ${0} L ${x} ${height}`);
+  parent.append(path);
+}
+
 function drawLabel(parent, label) {
   let text = createSVG("text");
   ["x", "y"].forEach((attr) => text.setAttribute(attr, label[attr]));
@@ -248,7 +265,7 @@ function drawLabel(parent, label) {
 
 function drawEdge(parent, edge) {
   // TODO https://github.com/OpenKieler/klayjs-svg/blob/master/klayjs-svg.js#L176
-  var path = createSVG("path", "snap-arrow");
+  let path = createSVG("path", "snap-arrow");
   if (edge.immutable) {
     path.classList.add("snap-immutable");
   }
