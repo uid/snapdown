@@ -25,10 +25,11 @@ mutable = "(" internals:internals ")" { return internals }
 immutable = "((" internals:internals "))" { return merge({ immutable: true }, internals) }
 internals = $* object:type _ $* _ fields:fields _ $* { return { object, fields } }
 
-// TODO if they all use first/rest, put that logic in fields production?
-fields = fields:(pointers / values)? { return fields || [] }
-pointers = first:pointer rest:(comma it:pointer { return it })* { return [ first, ...rest ] }
-values = first:value rest:(comma it:value { return it })* { return [ first, ...rest ] }
+fields = fields:(fieldlist)? { return fields || [] }
+fieldlist = first:field rest:(comma it:field { return it })* { return [ first, ...rest ] }
+field = pointer / pair / value
+
+pair = key:rhs _ "=" _ val:rhs { return { array: [ key, val ] } }
 
 array = "[" _ array:elements _ "]" { return { array } }
 elements = first:rhs rest:(comma it:rhs { return it })* { return [ first, ...rest ] }
