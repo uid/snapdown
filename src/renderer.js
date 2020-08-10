@@ -83,10 +83,7 @@ function incorporate(e, graph, showHashRefs = false) {
     let ptr = Object.assign(
       {
         id: e.source,
-        labels:
-          isHashRef || !e.independent
-            ? []
-            : makeLabels(e.name.ref.split("#")[0]),
+        labels: isHashRef || !e.independent ? [] : makeLabels(e.name.ref),
       },
       e
     );
@@ -204,8 +201,9 @@ function makeLabels(text) {
   if (text === undefined) {
     return [];
   }
+  text = `${text}`.split("#")[0];
   let elt = createSVG("text");
-  elt.textContent = text = `${text}`;
+  elt.textContent = text;
   metrics.append(elt);
   let { width, height } = elt.getBoundingClientRect();
   metrics.removeChild(elt);
