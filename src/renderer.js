@@ -17,7 +17,7 @@ function createSVGRoot() {
       <marker id="snap-arrowhead" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
         <path d="M0,8 L8,4 L0,0"/>
       </marker>
-      <filter id="snap-double">
+      <filter id="snap-double" x="-150%" y="-150%" width="300%" height="300%" filterUnits="userSpaceOnUse">
         <feMorphology in="SourceGraphic" result="Doubled" operator="dilate" radius="1"/>
         <feComposite in="SourceGraphic" in2="Doubled" result="Out" operator="xor"/>
       </filter>
