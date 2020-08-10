@@ -45,7 +45,7 @@ char = "'" . "'" { return text() }
 null = "null" { return null }
 
 blank = "_" { return {} }
-ref = "#"? name { return { ref: text() } }
+ref = (name "#")? name { return { ref: text() } }
 name = [a-z0-9~$%_+./?]i+
 type = name type_params? { return text() }
 type_params = "<" type ("," type)* ">"

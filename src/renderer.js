@@ -83,7 +83,10 @@ function incorporate(e, graph, showHashRefs = false) {
     let ptr = Object.assign(
       {
         id: e.source,
-        labels: isHashRef || !e.independent ? [] : makeLabels(e.name.ref),
+        labels:
+          isHashRef || !e.independent
+            ? []
+            : makeLabels(e.name.ref.split("#")[0]),
       },
       e
     );
@@ -260,7 +263,7 @@ function drawLabel(parent, label) {
   let text = createSVG("text");
   ["x", "y"].forEach((attr) => text.setAttribute(attr, label[attr]));
   text.setAttribute("dominant-baseline", "hanging");
-  text.textContent = label.text;
+  text.textContent = label.text.split("#")[0];
   parent.append(text);
 }
 
