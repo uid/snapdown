@@ -259,6 +259,7 @@ function drawSeparator(parent, x, height) {
 function drawLabel(parent, label) {
   let text = createSVG("text");
   ["x", "y"].forEach((attr) => text.setAttribute(attr, label[attr]));
+  text.setAttribute("dominant-baseline", "hanging");
   text.textContent = label.text;
   parent.append(text);
 }
