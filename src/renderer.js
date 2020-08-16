@@ -107,9 +107,9 @@ function incorporate(e, graph, showHashRefs = false) {
     return;
   }
 
-  // object
-  if (e.object) {
-    let labels = makeLabels(e.object);
+  // objects and functions
+  if (e.object || e.func) {
+    let labels = makeLabels(e.object || e.func);
     let obj = Object.assign(
       {
         id: makeID("obj"),
@@ -223,8 +223,8 @@ function drawAtom(parent, atom) {
   let group = createSVG("g");
   group.setAttribute("transform", "translate(" + atom.x + "," + atom.y + ")");
 
-  // objects and arrays
-  if (atom.object || atom.array) {
+  // objects, arrays, and functions
+  if (atom.object || atom.array || atom.func) {
     let rect = createSVG("rect", "snap-obj");
     ["width", "height"].forEach((attr) => rect.setAttribute(attr, atom[attr]));
     if (atom.object) {

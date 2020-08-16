@@ -94,8 +94,8 @@ function flatten(e, ancestors) {
     ];
   }
 
-  // object: flatten fields
-  if (e.object) {
+  // objects and functions: flatten fields
+  if (e.object || e.func) {
     let fields = flattenAll(
       e.fields.map((f) => {
         // create blank pointers for non-pointer, non-primitive fields
