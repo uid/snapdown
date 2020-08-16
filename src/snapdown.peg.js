@@ -5,7 +5,15 @@ module.exports = String.raw`
   function merge() { return Object.assign({}, ...arguments); }
 }
 
-diagram = heap:heap $* { return { heap } }
+diagram = heap:heap stack:stack $* { return { heap, stack } }
+
+stack = functions:($* it:function { return it })* { return functions }
+
+function = object:funcname _ target:(arrow:arrow _ parent:funcname _ { return parent })? "{" $* defs:defs $* "}" { return target ? merge({ object, target }, defs) : merge({ object }, defs) }
+funcname = name:([a-z0-9~$%_+./?()]i+) { return text() }
+
+defs = defs:(deflist)? { return { fields: defs || [] } }
+deflist = first:pointer rest:(comma it:pointer { return it })* { return [ first, ...rest ] }
 
 heap = vals:($* it:(pointer / value) { return it })* { return vals }
 

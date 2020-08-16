@@ -55,7 +55,7 @@ function drawable(snap) {
       "elk.edgeRouting": "POLYLINE",
       "elk.hierarchyHandling": "INCLUDE_CHILDREN",
     },
-    children: [drawableHeap(snap.heap)],
+    children: [drawableHeap(snap.heap), drawableHeap(snap.stack)],
   };
   document.body.removeChild(metrics);
   return graph;

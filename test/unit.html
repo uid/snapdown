@@ -39,9 +39,8 @@ x -> (Whatever)
 <script type="application/snapdown">
 a -> ((String))
 
-// NOT SUPPORTED YET
-// main() { 
-// }
+main() { 
+}
 </script>
 <h1>Lists</h1>
 <script type="application/snapdown">
@@ -68,20 +67,19 @@ foo -> (MySecondADT)
 <script type="application/snapdown">
 cities -> (Set<Integer> -7, 42, 1024)
 cities -> (Set<Integer> _ -> -7, _ -> 42, _ -> 1024)
-// NOT SUPPORTED YET
-// cities -> (Set<Integer> -7, 42, 1024, size -> 3)
+cities -> (Set<Integer> -7, 42, 1024, size -> 3)
 </script>
 <h1>Stack Frames</h1>
 <script type="application/snapdown">
 x -> (Whatever)
 
+topOfStack() {
 // NOT SUPPORTED YET
-// topOfStack() {
-// this -> x
-// foo -> 5
-// }
-// lowerInStack() {}
-// main() {}
+this -> x
+foo -> 5
+}
+lowerInStack() {}
+main() {}
 </script>
 <h1>Threads</h1>
 <script type="application/snapdown">

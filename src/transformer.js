@@ -48,15 +48,22 @@ function transform(spec) {
   claimed = {};
   unclaimed = {};
   ptrCounter = 0;
+
+  let heapElts = spec.heap.map((x) =>
+    Object.assign({}, x, { id: identify(x) })
+  );
+  let stackElts = spec.stack.map((x) =>
+    Object.assign({}, x, { id: identify(x) })
+  );
+
   return {
-    heap: transformHeap(
-      spec.heap.map((x) => Object.assign({}, x, { id: identify(x) }))
-    ),
+    heap: transformHeap(heapElts, stackElts),
+    stack: transformHeap(stackElts, heapElts),
   };
 }
 
-function transformHeap(roots) {
-  let flat = flattenAll(roots, []);
+function transformHeap(roots, others = null) {
+  let flat = flattenAll(roots, others || []);
   return flat;
 }
 
