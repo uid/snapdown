@@ -9,7 +9,9 @@ diagram = heap:heap stack:stack $* { return { heap, stack } }
 
 stack = functions:($* it:function { return it })* { return functions }
 
-function = func:funcname _ target:(arrow:arrow _ parent:funcname _ { return parent })? "{" $* defs:defs $* "}" { return target ? merge({ func, target }, defs) : merge({ func }, defs) }
+function = func:funcname _ target:(arrow:arrow _ parent:funcname _ { return parent })? "{" $* defs:defs $* "}" {
+  return target ? merge({ func, target }, defs) : merge({ func }, defs)
+}
 funcname = name:([a-z0-9~$%_+./?()]i+) { return text() }
 
 defs = defs:(deflist)? { return { fields: defs || [] } }
@@ -37,7 +39,7 @@ fields = fields:(fieldlist)? { return fields || [] }
 fieldlist = first:field rest:(comma it:field { return it })* { return [ first, ...rest ] }
 field = pointer / pair / value
 
-pair = key:rhs _ "=" _ val:rhs { return { array: [ key, val ] } }
+pair = key:rhs _ "=" _ val:rhs { return { array: [ key, val ], inside: true } }
 
 array = "[" _ array:elements _ "]" { return { array } }
 elements = first:rhs rest:(comma it:rhs { return it })* { return [ first, ...rest ] }

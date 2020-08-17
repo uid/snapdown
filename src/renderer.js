@@ -25,6 +25,7 @@ function createSVGRoot() {
     <style>
     rect.snap-obj { stroke: black; fill: none; }
     path.snap-separator { stroke: black; fill: none; }
+    path.snap-container { stroke: black; fill: none; }
     path.snap-arrow { stroke: black; fill: none; marker-end: url(#snap-arrowhead); }
     path.snap-x { stroke: red; stroke-width: 2; fill: none }
     #snap-arrowhead { stroke: black; fill: none; }
@@ -162,17 +163,25 @@ function incorporate(e, graph, showHashRefs = false) {
       },
       e
     );
-    graph.children.push(arr);
+    if (!e.inside) {
+      graph.children.push(arr);
+    }
     arr.array.forEach((f, i) => {
       // assign default position to each field
       if (!f.layoutOptions) f.layoutOptions = {};
-      f.layoutOptions = Object.assign(
-        {
-          "elk.position": `(${nodeSpacing * i}, 0)`,
-        },
-        f.layoutOptions
-      );
-      incorporate(f, arr, true);
+      if (e.inside) {
+        f.group = arr.id;
+        f.layoutOptions = Object.assign(e.layoutOptions, f.layoutOptions);
+        incorporate(f, graph, true);
+      } else {
+        f.layoutOptions = Object.assign(
+          {
+            "elk.position": `(${nodeSpacing * i}, 0)`,
+          },
+          f.layoutOptions
+        );
+        incorporate(f, arr, true);
+      }
     });
     return;
   }
@@ -197,16 +206,21 @@ function incorporate(e, graph, showHashRefs = false) {
   throw new Error("Snapdown cannot incorporate: " + Object.keys(e));
 }
 
-function makeLabels(text) {
-  if (text === undefined) {
-    return [];
-  }
-  text = `${text}`.split("#")[0];
+function getTextBounds(text) {
   let elt = createSVG("text");
   elt.textContent = text;
   metrics.append(elt);
   let { width, height } = elt.getBoundingClientRect();
   metrics.removeChild(elt);
+  return { width, height };
+}
+
+function makeLabels(text) {
+  if (text === undefined) {
+    return [];
+  }
+  text = `${text}`.split("#")[0];
+  let { width, height } = getTextBounds(text);
   return [{ text, width, height }];
 }
 
@@ -248,7 +262,51 @@ function drawAtom(parent, atom) {
   atom.labels && atom.labels.forEach(drawLabel.bind(null, group));
   atom.children && atom.children.forEach(drawAtom.bind(null, group));
   atom.edges && atom.edges.forEach(drawEdge.bind(null, group));
+
+  if (atom.children && atom.children.length) {
+    let curGroup = atom.children[0].group,
+      idx = 0;
+    for (let i = 0; i < atom.children.length; i++) {
+      if (atom.children[i].group != curGroup) {
+        if (curGroup) {
+          drawContainer(
+            group,
+            atom.children[idx].x,
+            atom.children[i - 1].x,
+            atom.height,
+            atom.children[idx]
+          );
+        }
+        curGroup = atom.children[i].group;
+        idx = i;
+      }
+    }
+    if (curGroup && idx != atom.children.length - 1) {
+      drawContainer(
+        group,
+        atom.children[idx].x,
+        atom.children[atom.children.length - 1].x,
+        atom.height,
+        atom.children[idx]
+      );
+    }
+  }
+
   parent.append(group);
+}
+
+function drawContainer(parent, start, end, bottom, child) {
+  let { width, height } = child;
+  let path = createSVG("path", "snap-container");
+  let yTop = bottom - (3 * height) / 2,
+    yBot = bottom - height / 2,
+    xLeft = start,
+    xRight = end + width;
+  path.setAttribute(
+    "d",
+    `M ${xLeft} ${yTop} L ${xLeft} ${yBot} L ${xRight} ${yBot} L ${xRight} ${yTop} L ${xLeft} ${yTop}`
+  );
+  parent.append(path);
 }
 
 function drawSeparator(parent, x, height) {
