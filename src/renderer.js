@@ -9,7 +9,7 @@ function createSVG(tag, classes) {
 }
 
 function createSVGRoot() {
-  let root = createSVG("svg");
+  let root = createSVG("svg", ["no-markdown"]);
   root.insertAdjacentHTML(
     "afterbegin",
     `

@@ -33,12 +33,12 @@ function parseText(scriptElement) {
   let script = yamlfront.safeLoadFront(scriptElement.text);
   let text = script.__content;
   let spec = transformer.parse(text);
-  console.log(spec);
   let snap = transformer.transform(spec);
 
   let jsonElement = document.createElement("script");
   jsonElement.text = JSON.stringify(snap);
   jsonElement.type = "application/snapdown+json";
+  jsonElement.className = "no-markdown";
   jsonElement.id = (Math.random() + 1).toString(36).substring(7);
   scriptElement.parentNode.insertBefore(jsonElement, scriptElement);
   return jsonElement;
