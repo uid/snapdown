@@ -15,7 +15,7 @@ let claimed = {},
 
 const identifyPtrSource = (function () {
   return function identifyPtrSource(e) {
-    let newId = e.id || `ptr${++ptrCounter}`;
+    let newId = e.id || (e.id = `ptr${++ptrCounter}`);
 
     // does this pointer need "claiming", i.e. is it crossed-out or
     // intentionally specified to ignore name-binding?
@@ -81,7 +81,7 @@ function flatten(e, ancestors) {
       return [
         Object.assign({}, e, {
           source: identifyPtrSource(e),
-          target: { to: lookupRef(e.target.ref, ancestors, []) },
+          target: { to: lookupRef(e.target.ref, ancestors, []).id },
         }),
       ];
     }
@@ -144,33 +144,39 @@ function flatten(e, ancestors) {
 }
 
 function lookupRef(ref, ancestors, visited) {
-  let defn = ancestors.find((a) => a.name && a.name.ref === ref);
-  if (!defn) {
-    let fieldsFound = false;
-    for (var elt of ancestors) {
-      if (elt.target && elt.target.fields) {
-        defn = elt.target.fields.find((a) => a.name && a.name.ref === ref);
-        if (defn) {
-          fieldsFound = true;
-          break;
-        }
-      }
+  let matches = [];
+
+  // look for direct matches in ancestors or fields of ancestors
+  for (var elt of ancestors) {
+    if (elt.name && elt.name.ref === ref) matches.push(elt);
+
+    let fields = elt.fields || (elt.target && elt.target.fields) || [];
+    for (var defn of fields) {
+      if (defn.name && defn.name.ref === ref) matches.push(defn);
     }
-    if (!fieldsFound) {
-      throw new Error(`Snapdown cannot lookup: ${ref}`);
+  }
+  if (!matches.length) {
+    throw new Error(`Snapdown cannot lookup: ${ref}`);
+  }
+
+  let giveUpId = -1;
+  for (var match of matches) {
+    let id = identify(match.target);
+    if (match.target.ref && !visited.includes(id)) {
+      // if this target hasn't been visited, keep going
+      let result = lookupRef(match.target.ref, ancestors, [id, ...visited]);
+      if (result.loop) giveUpId = result.id;
+      else return { id: result.id, loop: false };
+    } else if (visited.includes(id)) {
+      // if we're caught in a "cycle", set the "give-up ID"
+      giveUpId = identify(match);
+    } else {
+      return { id, loop: false };
     }
   }
 
-  let id = identify(defn.target);
-  if (defn.target.ref && !visited.includes(id)) {
-    // if this target hasn't been visited, keep going
-    return lookupRef(defn.target.ref, ancestors, [id, ...visited]);
-  } else if (visited.includes(id)) {
-    // if we're caught in a "cycle", just point at this definition, no matter what it is
-    return identify(defn);
-  } else {
-    return id;
-  }
+  // if every single possible definition has led to a cycle
+  return { id: giveUpId, loop: true };
 }
 
 function parse(text) {
