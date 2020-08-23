@@ -39,7 +39,7 @@ function parseText(scriptElement) {
   jsonElement.text = JSON.stringify(snap);
   jsonElement.type = "application/snapdown+json";
   jsonElement.className = "no-markdown";
-  jsonElement.id = (Math.random() + 1).toString(36).substring(7);
+  jsonElement.id = scriptElement.id + "-json";
   scriptElement.parentNode.insertBefore(jsonElement, scriptElement);
   return jsonElement;
 }
@@ -53,7 +53,7 @@ function renderJSON(jsonElement) {
   }
   let snap = JSON.parse(jsonElement.text);
   let graph = renderer.drawable(snap);
-  let id = (Math.random() + 1).toString(36).substring(7);
+  let id = jsonElement.id + "-svg";
   elk.instance.layout(graph).then((graph) => {
     renderer.draw(jsonElement, graph, id);
   });
@@ -61,10 +61,13 @@ function renderJSON(jsonElement) {
 }
 
 function render(elt) {
+  let created = [];
   if (elt.matches(scriptSelector)) {
-    parseText(elt);
+    let jsonElement = parseText(elt);
+    created.push(jsonElement.id);
+    created.push(renderJSON(jsonElement));
   }
-  renderJSON(elt);
+  return created;
 }
 
 // returns IDs of all newly-created elements

@@ -30,7 +30,8 @@ function createSVGRoot() {
     path.snap-x { stroke: red; stroke-width: 2; fill: none }
     #snap-arrowhead { stroke: black; fill: none; }
     .snap-immutable { filter: url(#snap-double); }
-    text { font-family: sans-serif; font-size: 12pt; text-anchor: start; alignment-baseline: hanging; }
+    text.object { font-family: sans-serif; font-size: 10pt; text-anchor: middle; dominant-baseline: hanging; }
+    text.value { font-family: sans-serif; font-size: 12pt; text-anchor: start; dominant-baseline: hanging; }
     </style>
   `
   );
@@ -99,12 +100,13 @@ function incorporate(e, graph, showHashRefs = false) {
     );
 
     graph.children.push(ptr);
-    graph.edges.push(
-      Object.assign(
-        { id: makeID("edge"), sources: [ptr.source], targets: [ptr.target.to] },
+    for (var to of ptr.target.to) {
+      let edge = Object.assign(
+        { id: makeID("edge"), sources: [ptr.source], targets: [to.id] },
         e
-      )
-    );
+      );
+      graph.edges.push(Object.assign(edge, to.options));
+    }
     return;
   }
 
@@ -259,7 +261,7 @@ function drawAtom(parent, atom) {
     group.append(rect);
   }
 
-  atom.labels && atom.labels.forEach(drawLabel.bind(null, group));
+  atom.labels && atom.labels.forEach(drawLabel.bind(null, group, atom));
   atom.children && atom.children.forEach(drawAtom.bind(null, group));
   atom.edges && atom.edges.forEach(drawEdge.bind(null, group));
 
@@ -315,10 +317,15 @@ function drawSeparator(parent, x, height) {
   parent.append(path);
 }
 
-function drawLabel(parent, label) {
+function drawLabel(parent, atom, label) {
   let text = createSVG("text");
   ["x", "y"].forEach((attr) => text.setAttribute(attr, label[attr]));
-  text.setAttribute("dominant-baseline", "hanging");
+  if (atom.object) {
+    text.classList.add("object");
+    text.setAttribute("x", atom.width / 2);
+  } else {
+    text.classList.add("value");
+  }
   text.textContent = label.text.split("#")[0];
   parent.append(text);
 }

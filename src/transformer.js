@@ -68,10 +68,11 @@ function transformHeap(roots, others = null) {
 }
 
 function flattenAll(arr, ancestors) {
-  return arr.reduce(
-    (flat, e) => flat.concat(flatten(e, [...arr, ...ancestors])),
-    []
-  );
+  return arr.reduce((flat, e) => {
+    let x = flatten(e, [...arr, ...ancestors]);
+    if (flat) return flat.concat(x);
+    else return [x];
+  }, []);
 }
 
 function flatten(e, ancestors) {
@@ -81,14 +82,14 @@ function flatten(e, ancestors) {
       return [
         Object.assign({}, e, {
           source: identifyPtrSource(e),
-          target: { to: lookupRef(e.target.ref, ancestors, []).id },
+          target: { to: lookupRef(e.target.ref, ancestors, []).ids },
         }),
       ];
     }
     return [
       Object.assign({}, e, {
         source: identifyPtrSource(e),
-        target: { to: identify(e.target) },
+        target: { to: [{ id: identify(e.target) }] },
       }),
       ...flatten(e.target, ancestors),
     ];
@@ -159,24 +160,30 @@ function lookupRef(ref, ancestors, visited) {
     throw new Error(`Snapdown cannot lookup: ${ref}`);
   }
 
-  let giveUpId = -1;
+  let giveUpIds = [];
+  let ids = [];
   for (var match of matches) {
     let id = identify(match.target);
+    // TODO other options for a pointer to this target
+    let independent = !match.crossed;
+    let options = { crossed: match.crossed, group: match.group };
     if (match.target.ref && !visited.includes(id)) {
       // if this target hasn't been visited, keep going
       let result = lookupRef(match.target.ref, ancestors, [id, ...visited]);
-      if (result.loop) giveUpId = result.id;
-      else return { id: result.id, loop: false };
+      if (result.loop) giveUpIds = result.ids;
+      else if (!ids.length || !independent) ids.push(...result.ids);
     } else if (visited.includes(id)) {
-      // if we're caught in a "cycle", set the "give-up ID"
-      giveUpId = identify(match);
-    } else {
-      return { id, loop: false };
+      // if we're caught in a "cycle", set the "give-up IDs"
+      giveUpIds = [{ id: identify(match), options }];
+    } else if (!ids.length || !independent) {
+      ids.push({ id, options });
     }
   }
 
   // if every single possible definition has led to a cycle
-  return { id: giveUpId, loop: true };
+  if (!ids.length) return { ids: giveUpIds, loop: true };
+
+  return { ids, loop: false };
 }
 
 function parse(text) {

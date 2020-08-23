@@ -19,9 +19,10 @@
 <h1>Snapdown (test)</h1>
 
 <script type="application/snapdown">
-a -> (String "hello")
-b -> a
-c -> (Map a -> e, e -> d, d -> b)
+a -> (String a -> "b")
+b -> (Map b -> a)
+b -> (String "bcd")
+c -> (List #1 -x> b, #1 -> (String "Def"))
 </script>
 
 <script>
