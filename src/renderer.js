@@ -339,17 +339,31 @@ function drawEdge(parent, edge) {
   path.setAttribute(
     "d",
     edge.sections
-      .map((s) =>
-        [
-          "M",
-          s.startPoint.x,
-          s.startPoint.y,
-          ...(s.bendPoints || []).map((bend) => `L ${bend.x} ${bend.y}`),
-          "L",
-          s.endPoint.x,
-          s.endPoint.y,
-        ].join(" ")
-      )
+      .map((s) => {
+        let desc = [`M ${s.startPoint.x} ${s.startPoint.y}`];
+        let bendPoints = s.bendPoints || [];
+        bendPoints.push(s.endPoint);
+        for (let i = 0; i < bendPoints.length; ) {
+          let pointsLeft = bendPoints.length - i;
+          if (pointsLeft == 1) {
+            desc.push(`L ${bendPoints[i].x} ${bendPoints[i].y}`);
+            break;
+          } else if (pointsLeft == 3) {
+            let lastThree = [0, 1, 2].map(
+              (j) => `${bendPoints[i + j].x} ${bendPoints[i + j].y}`
+            );
+            desc.push(`C ${lastThree.join(" ")}`);
+            break;
+          } else {
+            let nextTwo = [0, 1].map(
+              (j) => `${bendPoints[i + j].x} ${bendPoints[i + j].y}`
+            );
+            desc.push(`Q ${nextTwo.join(" ")}`);
+            i += 2;
+          }
+        }
+        return desc.join(" ");
+      })
       .join(" ")
   );
   parent.append(path);
