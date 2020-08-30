@@ -171,7 +171,9 @@ function lookupRef(ref, ancestors, visited) {
       // if this target hasn't been visited, keep going
       let result = lookupRef(match.target.ref, ancestors, [id, ...visited]);
       if (result.loop) giveUpIds = result.ids;
-      else if (!ids.length || !independent) ids.push(...result.ids);
+      else if (!ids.length || !independent) {
+        ids.push(...result.ids.map((elt) => Object.assign(elt, { options })));
+      }
     } else if (visited.includes(id)) {
       // if we're caught in a "cycle", set the "give-up IDs"
       giveUpIds = [{ id: identify(match), options }];
