@@ -209,12 +209,20 @@ function incorporate(e, graph, showHashRefs = false) {
 }
 
 function getTextBounds(text) {
-  let elt = createSVG("text");
-  elt.textContent = text;
-  metrics.append(elt);
-  let { width, height } = elt.getBoundingClientRect();
-  metrics.removeChild(elt);
-  return { width, height };
+  let sections = text.split("\n");
+  let dimensions = sections.map((x) => {
+    let elt = createSVG("text");
+    elt.textContent = x;
+    metrics.append(elt);
+    let { width, height } = elt.getBoundingClientRect();
+    return { width, height };
+    metrics.removeChild(elt);
+  });
+
+  return {
+    width: Math.max(...dimensions.map((x) => x.width)),
+    height: dimensions.reduce((a, b) => a + b.height, 0),
+  };
 }
 
 function makeLabels(text) {
@@ -232,7 +240,9 @@ function draw(nearby, graph, id) {
   nearby.parentNode.insertBefore(root, nearby.nextSibling);
   ["width", "height"].forEach((attr) => root.setAttribute(attr, graph[attr]));
 
+  document.body.append(metrics);
   graph.children.forEach(drawAtom.bind(null, root));
+  document.body.removeChild(metrics);
 }
 
 function drawAtom(parent, atom) {
@@ -320,13 +330,36 @@ function drawSeparator(parent, x, height) {
 function drawLabel(parent, atom, label) {
   let text = createSVG("text");
   ["x", "y"].forEach((attr) => text.setAttribute(attr, label[attr]));
+
+  let textContent = label.text.split("#")[0];
+
   if (atom.object) {
     text.classList.add("object");
     text.setAttribute("x", atom.width / 2);
+    text.textContent = textContent;
   } else {
     text.classList.add("value");
+    let sections = textContent.split("\n");
+    let dy = 0;
+
+    for (var section of sections) {
+      let tspan = createSVG("tspan");
+
+      metrics.append(text);
+      tspan.textContent = section;
+      tspan.setAttribute("x", label["x"]);
+      tspan.setAttribute("dy", dy);
+      text.append(tspan);
+      metrics.removeChild(text);
+
+      let line = createSVG("text");
+      line.textContent = section;
+      metrics.append(line);
+      dy = line.getBoundingClientRect().height;
+      metrics.removeChild(line);
+    }
   }
-  text.textContent = label.text.split("#")[0];
+
   parent.append(text);
 }
 

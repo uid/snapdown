@@ -47,7 +47,7 @@ elements = first:rhs rest:(comma it:rhs { return it })* { return [ first, ...res
 
 string = "\"" [^"]* "\"" { return { val: text() } }
 
-primitive = val:(float / integer / boolean / char / null) { return { val } }
+primitive = val:(float / integer / boolean / char / null / phrase) { return { val } }
 float = ([0-9]* "." [0-9]+ / [0-9]+ "." [0-9]*) { return parseFloat(text()) }
 integer = "-"?[0-9]+ { return parseInt(text()) }
 boolean = "true" { return true } / "false" { return false }
@@ -55,9 +55,9 @@ char = "'" . "'" { return text() }
 null = "null" { return null }
 
 blank = "_" { return {} }
-ref = ((name)? "#")? name { return { ref: text().replace(/\`/g, "") } }
+ref = ((name)? "#")? name { return { ref: text() } }
 name = word / phrase
-phrase = "\`" word (_ word)* "\`"
+phrase = "\`" word (_ word)* "\`" { return text().replace(/\`/g, "") }
 word = [a-z0-9~$%_+./?]i+
 type = name type_params? { return text() }
 type_params = "<" type ("," type)* ">"
