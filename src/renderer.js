@@ -378,15 +378,21 @@ function drawEdge(parent, edge) {
         bendPoints.push(s.endPoint);
         for (let i = 0; i < bendPoints.length; ) {
           let pointsLeft = bendPoints.length - i;
-          if (pointsLeft == 1) {
-            desc.push(`L ${bendPoints[i].x} ${bendPoints[i].y}`);
-            break;
-          } else {
+          if (pointsLeft > 3) {
+            let nextThree = [0, 1, 2].map(
+              (j) => `${bendPoints[i + j].x} ${bendPoints[i + j].y}`
+            );
+            desc.push(`C ${nextThree.join(" ")}`);
+            i += 3;
+          } else if (pointsLeft > 2) {
             let nextTwo = [0, 1].map(
               (j) => `${bendPoints[i + j].x} ${bendPoints[i + j].y}`
             );
             desc.push(`Q ${nextTwo.join(" ")}`);
             i += 2;
+          } else {
+            desc.push(`L ${bendPoints[i].x} ${bendPoints[i].y}`);
+            i += 1;
           }
         }
         return desc.join(" ");
