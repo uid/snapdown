@@ -35,34 +35,60 @@ class App extends React.Component {
     this.state = {
       error: false,
       snapdownText: "",
-      created: [],
+      created: {},
       testMode: false,
       drawerOpen: true,
+      label: "Type Snapdown here",
     };
   }
 
-  setSnapdownText(newText) {
-    this.setState({ snapdownText: newText });
-    let baseUrl = window.location.href.split("#")[0];
-    window.location.replace(baseUrl + "#" + encodeURIComponent(newText));
-    this.redraw("snapWeb", newText);
+  downloadSVG() {
+    const element = document.createElement("a");
+    const file = new Blob(
+      [document.getElementById("snapWeb-json-svg").outerHTML],
+      { type: "text/plain" }
+    );
+    element.href = URL.createObjectURL(file);
+    element.download = "diagram.svg";
+    document.body.appendChild(element); // Required for this to work in FireFox
+    element.click();
+  }
+
+  setSnapdownText(field, newText) {
+    let snapdownText = Object.assign({}, this.state.snapdownText);
+    snapdownText[field] = newText;
+    this.setState({ snapdownText: snapdownText });
+
+    if (field == "snapWeb") {
+      let baseUrl = window.location.href.split("#")[0];
+      window.location.replace(baseUrl + "#" + encodeURIComponent(newText));
+    }
+    this.redraw(field, newText);
   }
 
   redraw(id, newText) {
-    this.state.created.map((x) => {
-      let element = document.getElementById(x);
-      if (element) element.remove();
+    Object.keys(this.state.created).map((x) => {
+      if (x == id) {
+        this.state.created[x].map((y) => {
+          let element = document.getElementById(y);
+          if (element) element.remove();
+        });
+      }
     });
-    let created = [];
 
     let scriptElement = document.getElementById(id);
     scriptElement.text = newText;
 
+    let error = Object.assign({}, this.state.error);
+    let created = Object.assign({}, this.state.created);
+
     try {
-      created = Snapdown.renderAll();
-      this.setState({ error: false, created: created });
+      created[id] = Snapdown.render(scriptElement);
+      error[id] = false;
+      this.setState({ error: error, created: created });
     } catch (err) {
-      this.setState({ error: true, created: created });
+      error[id] = true;
+      this.setState({ error: error, created: created });
     }
   }
 
@@ -77,12 +103,31 @@ class App extends React.Component {
   componentDidMount() {
     if (window.location.hash) {
       let snapdownText = decodeURIComponent(window.location.hash.substring(1));
-      this.setState({ snapdownText: snapdownText });
+      this.setState({ snapdownText: { snapWeb: snapdownText } });
       this.redraw("snapWeb", snapdownText);
     }
   }
 
   render() {
+    let boxes = {
+      snapWeb: {
+        color: "transparent",
+        display: "block",
+        margin: "0px",
+        disabled: false,
+        label: this.state.label,
+      },
+      snapExample: {
+        color: "#DFDFDF",
+        display: "block",
+        margin: "10px",
+        disabled: true,
+        label: "",
+      },
+    };
+    if (!this.state.currentExample) {
+      boxes.snapExample.display = "none";
+    }
     return (
       <div>
         <AppBar position="static" style={{ marginBottom: "20px" }}>
@@ -101,22 +146,36 @@ class App extends React.Component {
           </Toolbar>
         </AppBar>
         <div style={{ marginLeft: "2%" }}>
-          <div style={{ display: "flex", flexDirection: "row" }}>
-            <TextField
-              onChange={(event) => {
-                this.setSnapdownText(event.target.value);
+          {Object.keys(boxes).map((x) => (
+            <div
+              style={{
+                display: boxes[x].display,
+                backgroundColor: boxes[x].color,
+                margin: boxes[x].margin,
               }}
-              defaultValue={this.state.snapdownText}
-              multiline={true}
-              variant="outlined"
-              style={{ width: "20%" }}
-            />
-            <div style={{ marginLeft: "2%" }}>
-              <script type="application/snapdown" id="snapWeb" />
-              {this.state.error && <div>Error occurred.</div>}
+            >
+              <div style={{ display: "flex", flexDirection: "row" }}>
+                <TextField
+                  onChange={(event) => {
+                    this.setSnapdownText(x, event.target.value);
+                    this.setState({ label: null });
+                  }}
+                  defaultValue={this.state.snapdownText[x]}
+                  multiline={true}
+                  variant="outlined"
+                  style={{ width: "20%", margin: boxes[x].margin }}
+                  disabled={boxes[x].disabled}
+                  InputProps={{ style: { color: "black" } }}
+                  label={boxes[x].label}
+                />
+                <div style={{ marginLeft: "2%" }}>
+                  <script type="application/snapdown" id={x} />
+                  {this.state.error[x] && <div>Error occurred.</div>}
+                </div>
+              </div>
+              <br />
             </div>
-          </div>
-          <br />
+          ))}
           <Button
             variant="contained"
             onClick={() => {
@@ -124,6 +183,11 @@ class App extends React.Component {
             }}
           >
             Copy Direct URL
+          </Button>
+          <br />
+          <br />
+          <Button variant="contained" onClick={this.downloadSVG}>
+            Export to SVG
           </Button>
         </div>
         <Drawer
@@ -135,6 +199,7 @@ class App extends React.Component {
             <div>
               <IconButton onClick={() => this.handleDrawerClose()}>
                 <ChevronRightIcon />
+                <small>hide</small>
               </IconButton>
               <Divider />
             </div>
@@ -151,14 +216,23 @@ class App extends React.Component {
                   <a
                     href="#"
                     onClick={(e) => {
-                      console.log("hi!");
-                      this.setSnapdownText(examples[x].snapdown);
-                      this.setState({ currentExample: x });
+                      if (x == this.state.currentExample) {
+                        this.setState({ currentExample: null });
+                      } else {
+                        this.setSnapdownText(
+                          "snapExample",
+                          examples[x].snapdown
+                        );
+                        this.setState({ currentExample: x });
+                      }
                       e.preventDefault();
                     }}
                   >
                     {examples[x].name}
                   </a>
+                  {x == this.state.currentExample && (
+                    <font color="gray">&nbsp;(click again to hide)</font>
+                  )}
                   <br />
                   <div
                     style={{
