@@ -25,7 +25,7 @@ ${examples[x].snapdown}
   .join("<br />");
 
 const sidebarHTML = `
-<div id="snapdownHelp" class="hidenav">
+<div id="snapdownHelp" class="hidden">
 <div><a href="#" onclick="Snapdown.hideHelp(); return false;"><b>&gt; hide Snapdown help</b></a></div>
 <br />
 Snapdown is a language for <b>drawing</b> snapshot diagrams.

@@ -47,4 +47,4 @@ const examples = {
   },
 };
 
-export { examples };
+module.exports = { examples };

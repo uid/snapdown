@@ -10,14 +10,15 @@ function createSVG(tag, classes) {
 
 function createSVGRoot() {
   let root = createSVG("svg", ["no-markdown"]);
+  let id = (Math.random() + 1).toString(36).substring(7);
   root.insertAdjacentHTML(
     "afterbegin",
     `
     <defs>
-      <marker id="snap-arrowhead" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
+      <marker id="snap-arrowhead-${id}" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
         <path d="M0,8 L8,4 L0,0"/>
       </marker>
-      <filter id="snap-double" x="-150%" y="-150%" width="300%" height="300%" filterUnits="userSpaceOnUse">
+      <filter id="snap-double-${id}" x="-150%" y="-150%" width="300%" height="300%" filterUnits="userSpaceOnUse">
         <feMorphology in="SourceGraphic" result="Doubled" operator="dilate" radius="1"/>
         <feComposite in="SourceGraphic" in2="Doubled" result="Out" operator="xor"/>
       </filter>
@@ -26,12 +27,12 @@ function createSVGRoot() {
     rect.snap-obj { stroke: black; fill: none; }
     path.snap-separator { stroke: black; fill: none; }
     path.snap-container { stroke: black; fill: none; }
-    path.snap-arrow { stroke: black; fill: none; marker-end: url(#snap-arrowhead); }
+    path.snap-arrow { stroke: black; fill: none; marker-end: url(#snap-arrowhead-${id}); }
     path.snap-x { stroke: red; stroke-width: 2; fill: none }
-    #snap-arrowhead { stroke: black; fill: none; }
-    .snap-immutable { filter: url(#snap-double); }
-    text.object { font-family: sans-serif; font-size: 10pt; text-anchor: middle; dominant-baseline: hanging; }
-    text.value { font-family: sans-serif; font-size: 12pt; text-anchor: start; dominant-baseline: hanging; }
+    #snap-arrowhead-${id} { stroke: black; fill: none; }
+    .snap-immutable { filter: url(#snap-double-${id}); }
+    text.object { font-family: sans-serif; font-size: 10pt; text-anchor: middle; dominant-baseline: hanging; alignment-baseline: hanging; }
+    text.value { font-family: sans-serif; font-size: 12pt; text-anchor: start; dominant-baseline: hanging; alignment-baseline: hanging; }
     </style>
   `
   );
