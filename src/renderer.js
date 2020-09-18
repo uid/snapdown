@@ -243,6 +243,20 @@ function draw(nearby, graph, id) {
   document.body.append(metrics);
   graph.children.forEach(drawAtom.bind(null, root));
   document.body.removeChild(metrics);
+
+  // rescale svg as necessary
+  root.setAttribute(
+    "viewBox",
+    `0 0 ${root.getAttribute("width")} ${root.getAttribute("height")}`
+  );
+  ["width", "height"].map((x) => {
+    root.setAttribute(
+      x,
+      (parseInt(root.getAttribute(x)) *
+        parseInt(nearby.getAttribute("percentSize"))) /
+        100
+    );
+  });
 }
 
 function drawAtom(parent, atom) {

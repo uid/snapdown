@@ -1,5 +1,5 @@
 const examples = {
-  primitive: {
+  primitives: {
     name: "Primitives",
     snapdown: 'i -> 5\ns -> "abc"',
     explanation:
@@ -19,9 +19,8 @@ const examples = {
     snapdown:
       "lst -> (\nArrayList<Integer>\n0 -> 1000\n1 -> 2000\n2 -> 3000\nlength -> 3\n)",
     explanation:
-      "Here we have a variable `lst` pointing to an `ArrayList` with four fields. \
-                  The fields `0`, `1`, and `2` represent the elements in the list, and the \
-                  `length` field represents the length of the list. \
+      "Here we have a variable `lst` pointing to an `ArrayList` with three fields representing the elements, \
+                  and a fourth field representing the length. \
                   (Note that Java may not actually represent the List this way -- Snapdown is purely \
                   a _drawing_ tool that can get us any representation we wish.)",
   },
@@ -38,6 +37,13 @@ const examples = {
     explanation:
       "In this example, the variable `t` is an alias of `s`, and `season2` is an \
                   (immutable) alias of the `season` field of `s`.",
+  },
+  maps: {
+    name: "Map fields",
+    snapdown:
+      's -> (String "value")\nm -> (\nHashMap\n(String "key") = s\n)\nm2 -> (\nHashMap\n(String "otherKey") = s\n)',
+    explanation:
+      "In this example, we have two maps, each with a single key, and both with the same single value.",
   },
 };
 

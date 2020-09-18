@@ -5,6 +5,7 @@ const yamlfront = require("yaml-front-matter");
 
 const transformer = require("./transformer");
 const renderer = require("./renderer");
+const { sidebarHTML } = require("./sidebar");
 
 const scriptSelector = 'script[type="application/snapdown"]';
 const jsonSelector = 'script[type="application/snapdown+json"]';
@@ -40,6 +41,10 @@ function parseText(scriptElement) {
   jsonElement.type = "application/snapdown+json";
   jsonElement.className = "no-markdown";
   jsonElement.id = scriptElement.id + "-json";
+  jsonElement.setAttribute(
+    "percentSize",
+    scriptElement.getAttribute("percentSize") || 100
+  );
   scriptElement.parentNode.insertBefore(jsonElement, scriptElement);
   return jsonElement;
 }
@@ -85,4 +90,42 @@ function renderAll() {
   return created;
 }
 
-module.exports = { render, renderAll };
+function populateHelp(location) {
+  let snapdownHelp = document.createElement("div");
+  snapdownHelp.innerHTML = sidebarHTML;
+  if (location) {
+    document.body.insertBefore(snapdownHelp, document.getElementById(location));
+  } else {
+    document.body.appendChild(snapdownHelp);
+  }
+}
+
+function showHelp() {
+  document.getElementById("snapdownHelp").className = "sidenav";
+}
+
+function hideHelp() {
+  document.getElementById("snapdownHelp").className = "hidenav";
+}
+
+function showExample(id) {
+  let helpTextElem = document.getElementById(id + "-helptext");
+  let helpStates = ["(click to expand)", "(click to hide)"];
+  let curText = helpTextElem.innerHTML;
+  helpTextElem.innerHTML = helpStates[1 - helpStates.indexOf(curText)];
+
+  let contentElem = document.getElementById(id + "-content");
+  let contentStates = ["none", "block"];
+  let curDisplay = contentElem.style.display;
+  contentElem.style.display =
+    contentStates[1 - contentStates.indexOf(curDisplay)];
+}
+
+module.exports = {
+  render,
+  renderAll,
+  populateHelp,
+  showHelp,
+  hideHelp,
+  showExample,
+};

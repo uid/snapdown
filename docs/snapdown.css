@@ -3,3 +3,55 @@
 body {
   font-family: "Rubik", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
+
+@keyframes slidein {
+  from {
+    margin-left: 100%;
+    width: 30%; 
+  }
+
+  to {
+    margin-left: 0%;
+    width: 30%;
+  }
+}
+
+@keyframes slideout {
+  from {
+    margin-left: 0%;
+    width: 30%; 
+  }
+
+  to {
+    margin-left: 100%;
+    width: 30%;
+  }
+}
+
+.sidenav {
+  height: 100%; /* 100% Full-height */
+  width: 30%; /* 30% width */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Stay on top */
+  top: 0; /* Stay at the top */
+  left: 70%;
+  background-color: #EFEFEF;
+  overflow-x: hidden; /* Disable horizontal scroll */
+  padding: 20px;
+  animation-duration: 1s;
+  animation-name: slidein;
+}
+
+.hidenav {
+  height: 100%; /* 100% Full-height */
+  width: 0%; /* 0 width */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Stay on top */
+  top: 0; /* Stay at the top */
+  left: 100%;
+  background-color: #EFEFEF;
+  overflow-x: hidden; /* Disable horizontal scroll */
+  padding: 20px;
+  animation-duration: 1s;
+  animation-name: slideout;
+}
