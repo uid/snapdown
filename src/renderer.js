@@ -31,8 +31,8 @@ function createSVGRoot() {
     path.snap-x { stroke: red; stroke-width: 2; fill: none }
     #snap-arrowhead-${id} { stroke: black; fill: none; }
     .snap-immutable { filter: url(#snap-double-${id}); }
-    text.object { font-family: sans-serif; font-size: 10pt; text-anchor: middle; dominant-baseline: hanging; alignment-baseline: hanging; }
-    text.value { font-family: sans-serif; font-size: 12pt; text-anchor: start; dominant-baseline: hanging; alignment-baseline: hanging; }
+    text.object { font-family: sans-serif; font-size: 10pt; text-anchor: middle; transform: translateY(1.5ex); }
+    text.value { font-family: sans-serif; font-size: 12pt; text-anchor: start; transform: translateY(1.5ex); }
     </style>
   `
   );

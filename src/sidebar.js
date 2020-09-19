@@ -10,14 +10,20 @@ const examplesHTML = Object.keys(examples)
 <div id="${x}-helptext" style="display: inline-block;">(click to expand)</div>
 <div id="${x}-content" style="display: none;">
 <div>${examples[x].explanation}</div>
-<div style="display: flex; flex-direction: row;">
-<span style='border:1px solid black; width: 50%; font-family: monospace; font-size: 12px;'>${examples[
+<br />
+<table style="width:100%"><tr><td width="50%">
+<span style='width: 50%; font-family: monospace; font-size: 12px;'>${examples[
       x
     ].snapdown.replace(/(?:\r\n|\r|\n)/g, "<br />")}</span>
-<script type="application/snapdown" id="example2" class="no-markdown">
+</td><td>
+<script type="application/snapdown" id="example2" class="no-markdown" percentSize="${
+      examples[x].percentSize
+    }">
 ${examples[x].snapdown}
 </script>
-</div>
+</td>
+</tr>
+</table>
 </div>
 </div>
 `
@@ -25,8 +31,69 @@ ${examples[x].snapdown}
   .join("<br />");
 
 const sidebarHTML = `
+<style>
+@keyframes slidein {
+  from {
+    left: 100%;
+    width: 30%; 
+  }
+
+  to {
+    left: 70%;
+    width: 30%;
+  }
+}
+
+@keyframes slideout {
+  from {
+    left: 70%;
+    width: 30%; 
+  }
+
+  to {
+    left: 100%;
+    width: 30%;
+  }
+}
+
+.sidenav {
+  height: 100%; /* 100% Full-height */
+  width: 30%; /* 30% width */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Stay on top */
+  top: 0; /* Stay at the top */
+  left: 70%;
+  background-color: #EFEFEF;
+  overflow-x: hidden; /* Disable horizontal scroll */
+  animation-duration: 1s;
+  animation-name: slidein;
+}
+
+.hidenav {
+  height: 100%; /* 100% Full-height */
+  width: 30%; /* 30% width */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Stay on top */
+  top: 0; /* Stay at the top */
+  left: 100%;
+  background-color: #EFEFEF;
+  overflow-x: hidden; /* Disable horizontal scroll */
+  animation-duration: 1s;
+  animation-name: slideout;
+}
+
+.hidden {
+  display: none;
+}
+</style>
+
 <div id="snapdownHelp" class="hidden">
-<div><a href="#" onclick="Snapdown.hideHelp(); return false;"><b>&gt; hide Snapdown help</b></a></div>
+<div style="width: 100%; position: fixed; padding: 20px; z-index: 2; background-color: #DFDFDF;">
+<a href="#" onclick="Snapdown.hideHelp(); return false;"><b>&gt; hide Snapdown help</b></a>
+</div>
+<br />
+<br />
+<div style="padding: 20px;">
 <br />
 Snapdown is a language for <b>drawing</b> snapshot diagrams.
 <br />
