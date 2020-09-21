@@ -8,7 +8,7 @@ function createSVG(tag, classes) {
   return elt;
 }
 
-function createSVGRoot() {
+function createSVGRoot(setStyleId) {
   let root = createSVG("svg", ["no-markdown"]);
   let id = (Math.random() + 1).toString(36).substring(7);
   root.insertAdjacentHTML(
@@ -27,15 +27,16 @@ function createSVGRoot() {
     rect.snap-obj { stroke: black; fill: none; }
     path.snap-separator { stroke: black; fill: none; }
     path.snap-container { stroke: black; fill: none; }
-    path.snap-arrow { stroke: black; fill: none; marker-end: url(#snap-arrowhead-${id}); }
+    path.snap-arrow-${id} { stroke: black; fill: none; marker-end: url(#snap-arrowhead-${id}); }
     path.snap-x { stroke: red; stroke-width: 2; fill: none }
     #snap-arrowhead-${id} { stroke: black; fill: none; }
-    .snap-immutable { filter: url(#snap-double-${id}); }
+    .snap-immutable-${id} { filter: url(#snap-double-${id}); }
     text.object { font-family: sans-serif; font-size: 10pt; text-anchor: middle; transform: translateY(1.5ex); }
     text.value { font-family: sans-serif; font-size: 12pt; text-anchor: start; transform: translateY(1.5ex); }
     </style>
   `
   );
+  if (setStyleId) setStyleId(id);
   return root;
 }
 
@@ -236,13 +237,16 @@ function makeLabels(text) {
 }
 
 function draw(nearby, graph, id) {
-  let root = createSVGRoot();
+  let styleId;
+  let root = createSVGRoot((x) => {
+    styleId = x;
+  });
   root.id = id;
   nearby.parentNode.insertBefore(root, nearby.nextSibling);
   ["width", "height"].forEach((attr) => root.setAttribute(attr, graph[attr]));
 
   document.body.append(metrics);
-  graph.children.forEach(drawAtom.bind(null, root));
+  graph.children.forEach(drawAtom.bind(null, root, styleId));
   document.body.removeChild(metrics);
 
   // rescale svg as necessary
@@ -260,7 +264,7 @@ function draw(nearby, graph, id) {
   });
 }
 
-function drawAtom(parent, atom) {
+function drawAtom(parent, styleId, atom) {
   let group = createSVG("g");
   group.setAttribute("transform", "translate(" + atom.x + "," + atom.y + ")");
 
@@ -281,14 +285,14 @@ function drawAtom(parent, atom) {
       }
     }
     if (atom.immutable) {
-      rect.classList.add("snap-immutable");
+      rect.classList.add(`snap-immutable-${styleId}`);
     }
     group.append(rect);
   }
 
   atom.labels && atom.labels.forEach(drawLabel.bind(null, group, atom));
-  atom.children && atom.children.forEach(drawAtom.bind(null, group));
-  atom.edges && atom.edges.forEach(drawEdge.bind(null, group));
+  atom.children && atom.children.forEach(drawAtom.bind(null, group, styleId));
+  atom.edges && atom.edges.forEach(drawEdge.bind(null, group, styleId));
 
   if (atom.children && atom.children.length) {
     let curGroup = atom.children[0].group,
@@ -378,11 +382,11 @@ function drawLabel(parent, atom, label) {
   parent.append(text);
 }
 
-function drawEdge(parent, edge) {
+function drawEdge(parent, styleId, edge) {
   // TODO https://github.com/OpenKieler/klayjs-svg/blob/master/klayjs-svg.js#L176
-  let path = createSVG("path", "snap-arrow");
+  let path = createSVG("path", `snap-arrow-${styleId}`);
   if (edge.immutable) {
-    path.classList.add("snap-immutable");
+    path.classList.add(`snap-immutable-${styleId}`);
   }
   path.setAttribute(
     "d",
