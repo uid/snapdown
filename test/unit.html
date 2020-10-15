@@ -19,12 +19,23 @@
 </head>
 <body>
 <h1>Arrays</h1>
+<table>
+<tr><td style="background-color: #DFDFFF;">
 <script type="application/snapdown">
 a -> [ 0, 1, 2 ]
 b -> [ (Foo), (Foo), (Foo) ]
 c -> [ #1, #1, #1 ]
 #1 -> (Foo)
 </script>
+</td><td>
+<script type="application/snapdown">
+a -> [ 0, 1, 2 ]
+b -> [ (Foo), (Foo), (Foo) ]
+c -> [ #1, #1, #1 ]
+#1 -> (Foo)
+</script>
+</td></tr>
+</table>
 <h1>Fields</h1>
 <script type="application/snapdown">
 (
@@ -104,7 +115,7 @@ x -x> ((String)) // broken arrow
 x => ((String)) // final
 </script>
 <script>
-Snapdown.renderAll();
+Snapdown.renderAll(false);
 </script>
 </body>
 </html>

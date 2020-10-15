@@ -77,14 +77,20 @@ function render(elt) {
 
 // returns IDs of all newly-created elements
 // i.e., the JSON and SVG elements
-function renderAll() {
+function renderAll(shouldThrow = true) {
   let scriptElements = Array.from(document.querySelectorAll(scriptSelector));
   let created = [];
   scriptElements.map((x) => {
-    let y = parseText(x);
-    created.push(y.id);
-    let graphId = renderJSON(y);
-    created.push(graphId);
+    try {
+      let y = parseText(x);
+      created.push(y.id);
+      let graphId = renderJSON(y);
+      created.push(graphId);
+    } catch (err) {
+      if (shouldThrow) {
+        throw err;
+      }
+    }
   });
 
   return created;

@@ -18,7 +18,7 @@ const examples = {
   fields: {
     name: "Fields",
     snapdown:
-      "lst -> (\nArrayList<Integer>\n0 -> 1000\n1 -> 2000\n2 -> 3000\nlength -> 3\n)",
+      "lst -> (\nArrayList\n0 -> 1000\n1 -> 2000\n2 -> 3000\nlength -> 3\n)",
     explanation:
       "Here we have a variable lst pointing to an ArrayList with three fields representing the elements, \
                   and a fourth field representing the length. \
