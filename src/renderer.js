@@ -49,8 +49,22 @@ const makeID = (function () {
   };
 })();
 
+let stackPointedObjects = [];
+
 function drawable(snap) {
   document.body.append(metrics);
+
+  stackPointedObjects = [];
+
+  for (let frame of snap.stack) {
+    for (let ptr of frame.fields) {
+      let target = ptr.target || { to: [] };
+      for (let to of target.to) {
+        stackPointedObjects.push(to.id);
+      }
+    }
+  }
+
   let graph = {
     id: "diagram",
     layoutOptions: {
@@ -58,9 +72,11 @@ function drawable(snap) {
       "elk.direction": "DOWN",
       "elk.edgeRouting": "POLYLINE",
       "elk.hierarchyHandling": "INCLUDE_CHILDREN",
+      "elk.layered.crossingMinimization.semiInteractive": true,
     },
-    children: [drawableHeap(snap.heap), drawableHeap(snap.stack)],
+    children: [drawableHeap(snap.heap)],
   };
+
   document.body.removeChild(metrics);
   return graph;
 }
@@ -70,6 +86,9 @@ function drawableHeap(heap) {
     id: "heap",
     children: [],
     edges: [],
+    layoutOptions: {
+      "elk.layered.crossingMinimization.semiInteractive": true,
+    },
   };
   heap.forEach((e) => incorporate(e, graph));
   return graph;
@@ -122,6 +141,8 @@ function incorporate(e, graph, showHashRefs = false) {
           "elk.nodeLabels.placement": "INSIDE V_TOP H_CENTER",
           "elk.nodeSize.constraints": "NODE_LABELS MINIMUM_SIZE",
           "elk.layered.crossingMinimization.semiInteractive": true,
+          "elk.position": `(${nodeSpacing * e.id}, 0)`,
+          "elk.layered.crossingMinimization.layerChoiceConstraint": e.id,
         },
         labels,
         children: [],
@@ -139,6 +160,13 @@ function incorporate(e, graph, showHashRefs = false) {
         )}`,
       });
     }
+
+    if (stackPointedObjects.includes(e.id)) {
+      Object.assign(obj.layoutOptions, {
+        "elk.position": `(0, 0)`,
+      });
+    }
+
     graph.children.push(obj);
     obj.fields.forEach((f, i) => {
       // assign default position to each field

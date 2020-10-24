@@ -19,31 +19,18 @@
 </head>
 <body>
 <h1>Snapdown (test)</h1>
-
-<div style="display: none;">
 <script type="application/snapdown">
-a => (
-MyClass
-b -> ((aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa))
-)
+#a -> (A b -> 1)
+#b -> (B b -> 1)
+#c -> (C b -> 1)
+#d -> (D b -> 1)
+#e -> (E b -> 1)
+main() {
+a -> #a
+b -> #b
+e -> #e
+}
 </script>
-</div>
-
-<script type="application/snapdown">
-a => (
-MyClass
-b -> ((aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa))
-)
-</script>
-
-<div style="display: none;">
-<script type="application/snapdown">
-a => (
-MyClass
-b -> ((aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa))
-)
-</script>
-</div>
 
 <br />
 
