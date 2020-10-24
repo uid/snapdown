@@ -10,6 +10,8 @@ const { sidebarHTML } = require("./sidebar");
 const scriptSelector = 'script[type="application/snapdown"]';
 const jsonSelector = 'script[type="application/snapdown+json"]';
 
+let randomId = "Unknown";
+
 // lazy initialization of ELK singleton
 const elk = {
   get instance() {
@@ -114,6 +116,10 @@ function hideHelp() {
   document.getElementById("snapdownHelp").className = "hidenav";
 }
 
+function setRandomId(id) {
+  randomId = id;
+}
+
 function showExample(id) {
   let helpTextElem = document.getElementById(id + "-helptext");
   let helpStates = ["(click to expand)", "(click to hide)"];
@@ -123,6 +129,20 @@ function showExample(id) {
   let contentElem = document.getElementById(id + "-content");
   let contentStates = ["none", "block"];
   let curDisplay = contentElem.style.display;
+
+  const googleFormUrl = `https://docs.google.com/forms/d/e/1FAIpQLScI8DPu2A-QH-djXcl1_GMfk1R1E7ioYfzFWgri74UyR5CH2A/formResponse?usp=pp_url&entry.632602489=${encodeURIComponent(
+    randomId
+  )}&entry.382138263=${id}-${curDisplay}&submit=Submit`;
+
+  try {
+    fetch(googleFormUrl, {
+      method: "POST",
+      mode: "no-cors",
+    });
+  } catch (err) {
+    if (console && console.error) console.error(err);
+  }
+
   contentElem.style.display =
     contentStates[1 - contentStates.indexOf(curDisplay)];
 }
@@ -134,4 +154,5 @@ module.exports = {
   showHelp,
   hideHelp,
   showExample,
+  setRandomId,
 };

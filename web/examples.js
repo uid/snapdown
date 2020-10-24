@@ -9,10 +9,13 @@ const examples = {
   },
   objects: {
     name: "Objects",
-    snapdown: 'i -> (MyInteger 5)\ns -> (MyString "abc")',
+    snapdown:
+      'f -> (MyFloat 5.0)\ns -> (MyString "abc")\nc -> (MyColor `GREEN`)',
     explanation:
-      'In this example, i points to a MyInteger object with the value 5, \
-                  and s points to a MyString object with the value "abc".',
+      'In this example, f points to a MyFloat object with the value 5.0, \
+                  s points to a MyString object with the value "abc", \
+                  and c points to a MyColor object with the value GREEN. \
+                  (Note the backticks `` used to obtain the "custom" value of GREEN.)',
     percentSize: "80",
   },
   fields: {
@@ -42,13 +45,15 @@ const examples = {
                   (immutable) alias of the season field of s.",
     percentSize: "80",
   },
-  maps: {
-    name: "Map fields",
+  unnamed: {
+    name: "Unnamed references <b>(NEW)</b>",
     snapdown:
-      's -> (String "value")\nm -> (\nHashMap\n(String "key") = s\n)\nm2 -> (\nHashMap\n(String "otherKey") = s\n)',
+      '#sem -> (\nSemester\nseason -> ((String "Fall"))\nyear -> 2020\n)\nc -> (Course number -> "6.031"\nsemester -> #sem)',
     explanation:
-      "In this example, we have two maps, each with a single key, and both with the same single value.",
-    percentSize: "60",
+      "References are considered unnamed if they start with a hash symbol, #. In this example, \
+                  the #sem reference is never actually drawn in the diagram, but is known to be \
+                  associated with the Semester object.",
+    percentSize: "80",
   },
 };
 
