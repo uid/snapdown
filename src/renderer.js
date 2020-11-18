@@ -65,20 +65,33 @@ function drawable(snap) {
     }
   }
 
-  let graph = {
-    id: "diagram",
-    layoutOptions: {
-      "elk.algorithm": "layered",
-      "elk.direction": "DOWN",
-      "elk.edgeRouting": "POLYLINE",
-      "elk.hierarchyHandling": "INCLUDE_CHILDREN",
-      "elk.layered.crossingMinimization.semiInteractive": true,
+  let graphs = [
+    {
+      id: "diagram",
+      layoutOptions: {
+        "elk.algorithm": "layered",
+        "elk.direction": "DOWN",
+        "elk.edgeRouting": "POLYLINE",
+        "elk.hierarchyHandling": "INCLUDE_CHILDREN",
+        "elk.layered.crossingMinimization.semiInteractive": true,
+      },
+      children: [drawableHeap(snap.heap)],
     },
-    children: [drawableHeap(snap.heap)],
-  };
+    {
+      id: "stackDiagram",
+      layoutOptions: {
+        "elk.algorithm": "layered",
+        "elk.direction": "RIGHT",
+        "elk.edgeRouting": "POLYLINE",
+        "elk.hierarchyHandling": "INCLUDE_CHILDREN",
+        "elk.layered.crossingMinimization.semiInteractive": true,
+      },
+      children: [drawableStack(snap.stack)],
+    },
+  ];
 
   document.body.removeChild(metrics);
-  return graph;
+  return graphs;
 }
 
 function drawableHeap(heap) {
@@ -94,7 +107,20 @@ function drawableHeap(heap) {
   return graph;
 }
 
-function incorporate(e, graph, showHashRefs = false) {
+function drawableStack(stack) {
+  let graph = {
+    id: "stack",
+    children: [],
+    roughEdges: [],
+    layoutOptions: {
+      "elk.layered.crossingMinimization.semiInteractive": true,
+    },
+  };
+  stack.forEach((e) => incorporate(e, graph));
+  return graph;
+}
+
+function incorporate(e, graph, showHashRefs = false, includeEdges = true) {
   const nodeSpacing = 20;
 
   // pointer
@@ -121,12 +147,17 @@ function incorporate(e, graph, showHashRefs = false) {
     );
 
     graph.children.push(ptr);
+
     for (var to of ptr.target.to) {
       let edge = Object.assign(
         { id: makeID("edge"), sources: [ptr.source], targets: [to.id] },
         e
       );
-      graph.edges.push(Object.assign(edge, to.options));
+      if (includeEdges) {
+        graph.edges.push(Object.assign(edge, to.options));
+      } else {
+        graph.roughEdges.push(Object.assign(edge, to.options));
+      }
     }
     return;
   }
@@ -147,6 +178,7 @@ function incorporate(e, graph, showHashRefs = false) {
         labels,
         children: [],
         edges: [],
+        roughEdges: [],
       },
       e
     );
@@ -177,7 +209,8 @@ function incorporate(e, graph, showHashRefs = false) {
         },
         f.layoutOptions
       );
-      incorporate(f, obj, true);
+      // do not include edges if func
+      incorporate(f, obj, true, !Boolean(e.func));
     });
     return;
   }

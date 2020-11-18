@@ -5,7 +5,8 @@ const yamlfront = require("yaml-front-matter");
 
 const transformer = require("./transformer");
 const renderer = require("./renderer");
-const { sidebarHTML } = require("./sidebar");
+const sidebar = require("./sidebar");
+const pathfinding = require("./pathfinding");
 
 const scriptSelector = 'script[type="application/snapdown"]';
 const jsonSelector = 'script[type="application/snapdown+json"]';
@@ -59,10 +60,13 @@ function renderJSON(jsonElement) {
     );
   }
   let snap = JSON.parse(jsonElement.text);
-  let graph = renderer.drawable(snap);
+  let graphs = renderer.drawable(snap);
   let id = jsonElement.id + "-svg";
-  elk.instance.layout(graph).then((graph) => {
-    renderer.draw(jsonElement, graph, id);
+  graphs.forEach((graph) => {
+    elk.instance.layout(graph).then((graph) => {
+      graph = pathfinding.layoutRoughEdges(graph);
+      renderer.draw(jsonElement, graph, id);
+    });
   });
   return id;
 }
@@ -100,7 +104,7 @@ function renderAll(shouldThrow = true) {
 
 function populateHelp(location) {
   let snapdownHelp = document.createElement("div");
-  snapdownHelp.innerHTML = sidebarHTML;
+  snapdownHelp.innerHTML = sidebar.sidebarHTML;
   if (location) {
     document.body.insertBefore(snapdownHelp, document.getElementById(location));
   } else {

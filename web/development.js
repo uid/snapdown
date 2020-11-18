@@ -14,6 +14,8 @@ function require(module) {
       return Renderer;
     case "./sidebar":
       return Sidebar;
+    case "./pathfinding":
+      return Pathfinding;
     case "../web/examples":
       return Examples;
   }

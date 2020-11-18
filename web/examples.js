@@ -1,3 +1,5 @@
+"use strict";
+
 const examples = {
   primitives: {
     name: "Primitives",

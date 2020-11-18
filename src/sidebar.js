@@ -1,4 +1,7 @@
-const { examples } = require("../web/examples");
+"use strict";
+
+const e = require("../web/examples");
+const examples = e.examples;
 
 const examplesHTML = Object.keys(examples)
   .map(
