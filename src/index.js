@@ -62,12 +62,26 @@ function renderJSON(jsonElement) {
   let snap = JSON.parse(jsonElement.text);
   let graphs = renderer.drawable(snap);
   let id = jsonElement.id + "-svg";
+
+  let graphsAfterLayout = [],
+    promises = [];
   graphs.forEach((graph) => {
-    elk.instance.layout(graph).then((graph) => {
-      graph = pathfinding.layoutRoughEdges(graph);
+    promises.push(
+      elk.instance.layout(graph).then((graph) => {
+        graphsAfterLayout.push(graph);
+      })
+    );
+  });
+
+  Promise.all(promises).then(() => {
+    let graphsAfterPathfinding = pathfinding.layoutRoughEdges(
+      graphsAfterLayout
+    );
+    graphsAfterPathfinding.forEach((graph) => {
       renderer.draw(jsonElement, graph, id);
     });
   });
+
   return id;
 }
 
