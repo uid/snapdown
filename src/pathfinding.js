@@ -189,14 +189,13 @@ function layoutRoughEdges(graphs) {
 
   // TODO best finder?
   let finder = new PF.AStarFinder();
+  let paths = [];
   roughEdgeList.forEach((roughEdge) => {
     var gridBackup = grid.clone();
-
-    let path = finder.findPath(...roughEdge, gridBackup);
-    console.log(path);
+    paths.push(finder.findPath(...roughEdge, gridBackup));
   });
 
-  return graphs;
+  return paths;
 }
 
 module.exports = { layoutRoughEdges };

@@ -15,6 +15,8 @@ import {
 import MenuIcon from "@material-ui/icons/Menu";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 
+import ReactHtmlParser from "react-html-parser";
+
 import { examples } from "./examples";
 
 const drawerWidth = 360;
@@ -46,7 +48,7 @@ class App extends React.Component {
   downloadSVG() {
     const element = document.createElement("a");
     const file = new Blob(
-      [document.getElementById("snapWeb-json-svg").outerHTML],
+      [document.querySelector('[id^="snapWeb-json-"][id*="-svg-"]').outerHTML],
       { type: "text/plain" }
     );
     element.href = URL.createObjectURL(file);
@@ -85,9 +87,13 @@ class App extends React.Component {
     let created = Object.assign({}, this.state.created);
 
     try {
-      created[id] = Snapdown.render(scriptElement);
-      error[id] = false;
+      console.log(toRemove);
       for (var x of toRemove) x.remove();
+      if (!toRemove.length) {
+        created[id] = Snapdown.render(scriptElement);
+        error[id] = false;
+      }
+      console.log(toRemove);
       this.setState({ error: error, created: created });
     } catch (err) {
       error[id] = true;
@@ -261,7 +267,7 @@ class App extends React.Component {
                         e.preventDefault();
                       }}
                     >
-                      {examples[x].name}
+                      {ReactHtmlParser(examples[x].name)}
                     </a>
                     {x == this.state.currentExample && (
                       <font color="gray">&nbsp;(click again to hide)</font>
@@ -274,7 +280,7 @@ class App extends React.Component {
                           x == this.state.currentExample ? "block" : "none",
                       }}
                     >
-                      {examples[x].explanation}
+                      {ReactHtmlParser(examples[x].explanation)}
                     </div>
                     <Divider />
                     <br />

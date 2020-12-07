@@ -13,6 +13,9 @@ const jsonSelector = 'script[type="application/snapdown+json"]';
 
 let randomId = "Unknown";
 
+// WARNING: SLOW & LAGGY
+let showPathfinding = false;
+
 // lazy initialization of ELK singleton
 const elk = {
   get instance() {
@@ -26,6 +29,10 @@ const elk = {
     }));
   },
 };
+
+function randomString() {
+  return (Math.random() + 1).toString(36).substring(7);
+}
 
 // parse Snapdown text into transform into JSON
 function parseText(scriptElement) {
@@ -43,7 +50,7 @@ function parseText(scriptElement) {
   jsonElement.text = JSON.stringify(snap);
   jsonElement.type = "application/snapdown+json";
   jsonElement.className = "no-markdown";
-  jsonElement.id = scriptElement.id + "-json";
+  jsonElement.id = scriptElement.id + "-json-" + randomString();
   jsonElement.setAttribute(
     "percentSize",
     scriptElement.getAttribute("percentSize") || 100
@@ -61,7 +68,7 @@ function renderJSON(jsonElement) {
   }
   let snap = JSON.parse(jsonElement.text);
   let graphs = renderer.drawable(snap);
-  let id = jsonElement.id + "-svg";
+  let id = jsonElement.id + "-svg-" + randomString();
 
   let graphsAfterLayout = [],
     promises = [];
@@ -74,12 +81,18 @@ function renderJSON(jsonElement) {
   });
 
   Promise.all(promises).then(() => {
-    let graphsAfterPathfinding = pathfinding.layoutRoughEdges(
-      graphsAfterLayout
-    );
-    graphsAfterPathfinding.forEach((graph) => {
+    let paths = pathfinding.layoutRoughEdges(graphsAfterLayout);
+    graphsAfterLayout.forEach((graph) => {
       renderer.draw(jsonElement, graph, id);
     });
+
+    if (showPathfinding) {
+      paths.forEach((path) => {
+        path.forEach((point) => {
+          document.body.innerHTML += `<div style="position: absolute; left: ${point[0]}px; top: ${point[1]}px; width: 1px; height: 1px; background-color: red;"></div>`;
+        });
+      });
+    }
   });
 
   return id;
