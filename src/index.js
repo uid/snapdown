@@ -13,8 +13,7 @@ const jsonSelector = 'script[type="application/snapdown+json"]';
 
 let randomId = "Unknown";
 
-// WARNING: SLOW & LAGGY
-let showPathfinding = false;
+let showPathfinding = true;
 
 // lazy initialization of ELK singleton
 const elk = {
@@ -59,6 +58,74 @@ function parseText(scriptElement) {
   return jsonElement;
 }
 
+// TODO: move to renderer?
+function pathfindCombineDraw(id, jsonElement, graphsAfterLayout) {
+  // console.log(graphsAfterLayout);
+
+  let drawn = [];
+  let paths = pathfinding.layoutRoughEdges(graphsAfterLayout);
+
+  graphsAfterLayout.forEach((graph) => {
+    drawn.push(renderer.draw(jsonElement, graph, id));
+  });
+
+  let styleId;
+  let combined = renderer.createSVGRoot((x) => {
+    styleId = x;
+  });
+  combined.setAttribute(
+    "width",
+    drawn
+      .map((g) => parseInt(g.getAttribute("width")))
+      .reduce((x, y) => x + y, 0)
+  );
+  combined.setAttribute(
+    "height",
+    Math.max(...drawn.map((g) => parseInt(g.getAttribute("height"))))
+  );
+
+  let translate = 0;
+  for (let i = drawn.length - 1; i >= 0; i--) {
+    ["defs", "style"].forEach((x) => {
+      let styleInfo = drawn[i].getElementsByTagName(x)[0].cloneNode(true);
+      combined.appendChild(styleInfo);
+    });
+
+    let clone = drawn[i].getElementsByTagName("g")[0].cloneNode(true);
+    clone.setAttribute(
+      "transform",
+      "translate(" +
+        (graphsAfterLayout[i].x + translate) +
+        "," +
+        graphsAfterLayout[i].y +
+        ")"
+    );
+    translate += graphsAfterLayout[i].width;
+    combined.appendChild(clone);
+  }
+
+  drawn.forEach((x) => x.remove());
+  combined.id = id;
+
+  if (showPathfinding) {
+    paths.forEach((path) => {
+      let arrow = renderer.createSVG("path", `snap-arrow-${styleId}`);
+      let desc = [];
+      for (let i = 0; i < path.length; i++) {
+        if (i == 0) {
+          desc.push(`M ${path[i][0]} ${path[i][1]}`);
+        } else {
+          desc.push(`L ${path[i][0]} ${path[i][1]}`);
+        }
+      }
+      arrow.setAttribute("d", desc.join(" "));
+      combined.append(arrow);
+    });
+  }
+
+  jsonElement.parentNode.insertBefore(combined, jsonElement.nextSibling);
+}
+
 // layout and render Snapdown JSON
 function renderJSON(jsonElement) {
   if (!jsonElement.matches(jsonSelector)) {
@@ -80,20 +147,9 @@ function renderJSON(jsonElement) {
     );
   });
 
-  Promise.all(promises).then(() => {
-    let paths = pathfinding.layoutRoughEdges(graphsAfterLayout);
-    graphsAfterLayout.forEach((graph) => {
-      renderer.draw(jsonElement, graph, id);
-    });
-
-    if (showPathfinding) {
-      paths.forEach((path) => {
-        path.forEach((point) => {
-          document.body.innerHTML += `<div style="position: absolute; left: ${point[0]}px; top: ${point[1]}px; width: 1px; height: 1px; background-color: red;"></div>`;
-        });
-      });
-    }
-  });
+  Promise.all(promises).then(() =>
+    pathfindCombineDraw(id, jsonElement, graphsAfterLayout)
+  );
 
   return id;
 }

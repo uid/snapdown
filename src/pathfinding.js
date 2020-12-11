@@ -7,6 +7,8 @@ const PF = require("pathfinding");
 function getHeapOffset(graphs) {
   // TODO: remove magic numbers
   // TODO: why does graphs[0] get drawn to the right of graphs[1]?!?!
+  // TODO: this is now outdated, given that both diagrams are drawn in one grid
+  // TODO: this needs to keep in mind that we can have multiple stacks / more than two SVGs combined
   return {
     x: graphs[1].width,
     y: Math.max(0, graphs[1].height - graphs[0].height),
@@ -79,7 +81,17 @@ function getObstaclesAndObjInfo(graph, offset) {
   if (graph.children) {
     graph.children.forEach((obj) => {
       // TODO reduce duplicate code
-      if (obj.val) {
+      if (obj.object || obj.func) {
+        let info = {
+          type: "node",
+          x: obj.x + offset.x,
+          y: obj.y + offset.y,
+          width: obj.width,
+          height: obj.height,
+        };
+        obstacles.push(info);
+        objInfo[obj.id] = info;
+      } else if (obj.labels) {
         let info = {};
         obj.labels.forEach((label) => {
           info = {
@@ -92,16 +104,6 @@ function getObstaclesAndObjInfo(graph, offset) {
           obstacles.push(info);
         });
         // TODO can there be more than one info for a value?
-        objInfo[obj.id] = info;
-      } else if (obj.object || obj.func) {
-        let info = {
-          type: "node",
-          x: obj.x + offset.x,
-          y: obj.y + offset.y,
-          width: obj.width,
-          height: obj.height,
-        };
-        obstacles.push(info);
         objInfo[obj.id] = info;
       } else if (obj.x && obj.y && obj.width && obj.height && obj.id) {
         let info = {
@@ -188,11 +190,15 @@ function layoutRoughEdges(graphs) {
   });
 
   // TODO best finder?
-  let finder = new PF.AStarFinder();
+  let finder = new PF.AStarFinder({ allowDiagonal: true });
   let paths = [];
   roughEdgeList.forEach((roughEdge) => {
-    var gridBackup = grid.clone();
-    paths.push(finder.findPath(...roughEdge, gridBackup));
+    let gridBackup = grid.clone();
+    let path = finder.findPath(...roughEdge, gridBackup);
+    paths.push(path);
+
+    // what?? this removes everything except first & last
+    // paths.push(PF.Util.smoothenPath(gridBackup, path));
   });
 
   return paths;

@@ -323,6 +323,8 @@ function draw(nearby, graph, id) {
         100
     );
   });
+
+  return root;
 }
 
 function drawAtom(parent, styleId, atom) {
@@ -507,4 +509,4 @@ function drawEdge(parent, styleId, edge) {
   }
 }
 
-module.exports = { drawable, draw };
+module.exports = { drawable, draw, createSVG, createSVGRoot };
