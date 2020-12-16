@@ -32,6 +32,7 @@ function createSVGRoot(setStyleId) {
     #snap-arrowhead-${id} { stroke: black; fill: none; }
     .snap-immutable-${id} { filter: url(#snap-double-${id}); }
     text.object { font-family: sans-serif; font-size: 10pt; text-anchor: middle; transform: translateY(1.5ex); }
+    text.func { font-family: sans-serif; font-size: 10pt; text-anchor: middle; transform: translateY(1.5ex); }
     text.value { font-family: sans-serif; font-size: 12pt; text-anchor: start; transform: translateY(1.5ex); }
     </style>
   `
@@ -57,10 +58,12 @@ function drawable(snap) {
   stackPointedObjects = [];
 
   for (let frame of snap.stack) {
-    for (let ptr of frame.fields) {
-      let target = ptr.target || { to: [] };
-      for (let to of target.to) {
-        stackPointedObjects.push(to.id);
+    if (frame.fields) {
+      for (let ptr of frame.fields) {
+        let target = ptr.target || { to: [] };
+        for (let to of target.to) {
+          stackPointedObjects.push(to.id);
+        }
       }
     }
   }
@@ -156,6 +159,7 @@ function incorporate(e, graph, showHashRefs = false, includeEdges = true) {
       if (includeEdges) {
         graph.edges.push(Object.assign(edge, to.options));
       } else {
+        // TODO: edges directly from the stack to an object don't necessarily need to be rough?
         graph.roughEdges.push(Object.assign(edge, to.options));
       }
     }
@@ -194,6 +198,7 @@ function incorporate(e, graph, showHashRefs = false, includeEdges = true) {
     }
 
     if (stackPointedObjects.includes(e.id)) {
+      // TODO: why does this have no effect?
       Object.assign(obj.layoutOptions, {
         "elk.position": `(0, 0)`,
       });
@@ -419,7 +424,12 @@ function drawLabel(parent, atom, label) {
     text.classList.add("object");
     text.setAttribute("x", atom.width / 2);
     text.textContent = textContent;
+  } else if (atom.func) {
+    text.classList.add("func");
+    text.setAttribute("x", atom.width / 2);
+    text.textContent = textContent;
   } else {
+    // TODO: make func a completely separate case?
     text.classList.add("value");
     let sections = textContent.split("\n");
     let dy = 0;

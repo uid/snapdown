@@ -11,7 +11,7 @@ function getHeapOffset(graphs) {
   // TODO: this needs to keep in mind that we can have multiple stacks / more than two SVGs combined
   return {
     x: graphs[1].width,
-    y: Math.max(0, graphs[1].height - graphs[0].height),
+    y: 0, //Math.max(0, graphs[1].height - graphs[0].height),
   };
 }
 
@@ -149,6 +149,9 @@ function getPFGrid(gridSize, obstacleInfo) {
       let minY = Math.floor(obstacle.y),
         maxY = Math.ceil(obstacle.y + obstacle.height);
 
+      // TODO: make the grid coarser
+      // TODO: this should only be the border, not the entire node
+      // TODO: "punch a hole" to the "right" of each field (it may not be the right?)
       for (let i = minX; i <= maxX; i++) {
         for (let j = minY; j <= maxY; j++) {
           grid.setWalkableAt(i, j, false);
@@ -171,10 +174,17 @@ function layoutRoughEdges(graphs) {
   // and get x/y/width/height for every laid-out object in this diagram
   let obstacles = [];
   let objInfo = {};
-  graphs.forEach((graph) => {
+  graphs.forEach((parentGraph) => {
+    // TODO hack: diagram => heap, stackDiagram => stack
+    let graph = parentGraph.children[0];
+
     let offset = heapOffset;
     // TODO
-    if (graph.id == "stackDiagram") offset = { x: 0, y: 0 };
+    if (graph.id == "stack") offset = { x: 0, y: 0 };
+    // TODO
+    graph.x = 0;
+    graph.y = 0;
+
     let graphResult = getObstaclesAndObjInfo(graph, offset);
     obstacles.push(...graphResult.obstacles);
     objInfo = Object.assign(objInfo, graphResult.objInfo);
@@ -197,7 +207,7 @@ function layoutRoughEdges(graphs) {
     let path = finder.findPath(...roughEdge, gridBackup);
     paths.push(path);
 
-    // what?? this removes everything except first & last
+    // TODO: investigate smoothen path issue / bug (?)
     // paths.push(PF.Util.smoothenPath(gridBackup, path));
   });
 

@@ -15,7 +15,8 @@ function = func:funcname _ target:(arrow:arrow _ parent:funcname _ { return pare
 funcname = name:([a-z0-9~$%_+./?()]i+) { return text() }
 
 defs = defs:(deflist)? { return { fields: defs || [] } }
-deflist = first:pointer rest:(comma it:pointer { return it })* { return [ first, ...rest ] }
+deflist = first:def rest:(comma it:def { return it })* { return [ first, ...rest ] }
+def = pointer / value
 
 heap = vals:($* it:(pointer / value) { return it })* { return vals }
 
