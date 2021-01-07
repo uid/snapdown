@@ -189,11 +189,12 @@ function incorporate(e, graph, showHashRefs = false, includeEdges = true) {
     if (obj.fields.length) {
       // TODO understand WTF is going on here
       // the axes are flipped for nodes w/ childen vs. w/o, so only do this when there are fields?!
+      let minSize = Math.max.apply(
+        null,
+        labels.map((l) => l.width)
+      );
       Object.assign(obj.layoutOptions, {
-        "elk.nodeSize.minimum": `0,${Math.max.apply(
-          null,
-          labels.map((l) => l.width)
-        )}`,
+        "elk.nodeSize.minimum": e.func ? `${minSize},0` : `0,${minSize}`,
       });
     }
 
