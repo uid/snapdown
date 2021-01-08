@@ -59,7 +59,7 @@ blank = "_" { return {} }
 ref = ((name)? "#")? name { return { ref: text() } }
 name = word / phrase
 phrase = "\`" word (_ word)* "\`" { return text().replace(/\`/g, "") }
-word = [a-z0-9~$%_+./?]i+
+word = [a-z0-9~$%_+./?\[\]]i+
 type = name type_params? { return text() }
 type_params = "<" type ("," type)* ">"
 

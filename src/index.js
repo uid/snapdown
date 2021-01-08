@@ -127,7 +127,7 @@ function pathfindCombineDraw(id, jsonElement, graphsAfterLayout) {
 }
 
 // layout and render Snapdown JSON
-function renderJSON(jsonElement) {
+function renderJSON(jsonElement, callback) {
   if (!jsonElement.matches(jsonSelector)) {
     throw new Error(
       `Snapdown.renderJSON: expected input to be a ${jsonSelector}`
@@ -147,33 +147,36 @@ function renderJSON(jsonElement) {
     );
   });
 
-  Promise.all(promises).then(() =>
-    pathfindCombineDraw(id, jsonElement, graphsAfterLayout)
-  );
+  Promise.all(promises).then(() => {
+    pathfindCombineDraw(id, jsonElement, graphsAfterLayout);
+    if (callback) {
+      callback();
+    }
+  });
 
   return id;
 }
 
-function render(elt) {
+function render(elt, callback) {
   let created = [];
   if (elt.matches(scriptSelector)) {
     let jsonElement = parseText(elt);
     created.push(jsonElement.id);
-    created.push(renderJSON(jsonElement));
+    created.push(renderJSON(jsonElement, callback));
   }
   return created;
 }
 
 // returns IDs of all newly-created elements
 // i.e., the JSON and SVG elements
-function renderAll(shouldThrow = true) {
+function renderAll(shouldThrow = true, callback) {
   let scriptElements = Array.from(document.querySelectorAll(scriptSelector));
   let created = [];
   scriptElements.map((x) => {
     try {
       let y = parseText(x);
       created.push(y.id);
-      let graphId = renderJSON(y);
+      let graphId = renderJSON(y, callback);
       created.push(graphId);
     } catch (err) {
       if (shouldThrow) {

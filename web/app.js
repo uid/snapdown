@@ -16,6 +16,7 @@ import MenuIcon from "@material-ui/icons/Menu";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 
 import ReactHtmlParser from "react-html-parser";
+import { svgAsPngUri } from "save-svg-as-png";
 
 import { examples } from "./examples";
 
@@ -45,12 +46,15 @@ class App extends React.Component {
     this.timeout = 0;
   }
 
+  getSVGElement() {
+    return document.querySelector('[id^="snapWeb-json-"][id*="-svg-"]');
+  }
+
   downloadSVG() {
     const element = document.createElement("a");
-    const file = new Blob(
-      [document.querySelector('[id^="snapWeb-json-"][id*="-svg-"]').outerHTML],
-      { type: "text/plain" }
-    );
+    const file = new Blob([this.getSVGElement().outerHTML], {
+      type: "text/plain",
+    });
     element.href = URL.createObjectURL(file);
     element.download = "diagram.svg";
     document.body.appendChild(element); // Required for this to work in FireFox
@@ -60,13 +64,14 @@ class App extends React.Component {
   setSnapdownText(field, newText) {
     let snapdownText = Object.assign({}, this.state.snapdownText);
     snapdownText[field] = newText;
-    this.setState({ snapdownText: snapdownText });
+    this.setState({ snapdownText: snapdownText, rendered: false }, () =>
+      this.redraw(field, newText)
+    );
 
     if (field == "snapWeb") {
       let baseUrl = window.location.href.split("#")[0];
       window.location.replace(baseUrl + "#" + encodeURIComponent(newText));
     }
-    this.redraw(field, newText);
   }
 
   redraw(id, newText) {
@@ -87,13 +92,11 @@ class App extends React.Component {
     let created = Object.assign({}, this.state.created);
 
     try {
-      console.log(toRemove);
       for (var x of toRemove) x.remove();
-      if (!toRemove.length) {
-        created[id] = Snapdown.render(scriptElement);
-        error[id] = false;
-      }
-      console.log(toRemove);
+      created[id] = Snapdown.render(scriptElement, () =>
+        this.setState({ rendered: true })
+      );
+      error[id] = false;
       this.setState({ error: error, created: created });
     } catch (err) {
       error[id] = true;
@@ -112,8 +115,10 @@ class App extends React.Component {
   componentDidMount() {
     if (window.location.hash) {
       let snapdownText = decodeURIComponent(window.location.hash.substring(1));
-      this.setState({ snapdownText: { snapWeb: snapdownText } });
-      this.redraw("snapWeb", snapdownText);
+      this.setState(
+        { snapdownText: { snapWeb: snapdownText }, rendered: false },
+        () => this.redraw("snapWeb", snapdownText)
+      );
     }
   }
 
@@ -140,10 +145,30 @@ class App extends React.Component {
 
     const urlParams = new URLSearchParams(window.location.search);
     const instructorMode = urlParams.get("mode") === "instructor";
+    const png = urlParams.get("png") === "";
 
     let textFieldStyle = { width: instructorMode ? "40%" : "20%" };
     if (instructorMode) {
       textFieldStyle["height"] = "100%";
+    }
+
+    if (png) {
+      let svgElement = this.getSVGElement();
+      if (svgElement) {
+        svgAsPngUri(svgElement).then((uri) => {
+          this.setState({ uri: uri });
+        });
+      }
+    }
+
+    if (this.state.uri) {
+      return <img src={this.state.uri} />;
+    } else if (png) {
+      return (
+        <div style={{ marginLeft: "2%" }}>
+          <script type="application/snapdown" id={"snapWeb"} />
+        </div>
+      );
     }
 
     return (

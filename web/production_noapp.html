@@ -8,14 +8,108 @@
 </head>
 <body>
 <script type="application/snapdown">
-#p -> (Payment value -> 100)
+a -> [ 0, 1, 2 ]
+b -> [ (Foo), (Foo), (Foo) ]
+c -> [ #1, #1, #1 ]
+#1 -> (Foo)
+</script>
+</td><td>
+<script type="application/snapdown">
+a -> [ 0, 1, 2 ]
+b -> [ (Foo), (Foo), (Foo) ]
+c -> [ #1, #1, #1 ]
+#1 -> (Foo)
+</script>
+</td></tr>
+</table>
+<h1>Fields</h1>
+<script type="application/snapdown">
+(
+Whatever
+a -> 5 // points to primitive 5
+b => x // points to value of x
+// NOT SUPPORTED YET
+// c => `x` // incorrect, points to variable x
+d -> (Whatever) // points to a Whatever
+)
+x -> (Whatever)
+</script>
+<h1>Heap</h1>
+<script type="application/snapdown">
+a -> ((String))
+
+main() { 
+}
+</script>
+<h1>Lists</h1>
+<script type="application/snapdown">
+d -> (List 0 -> "a", 1 -> "b")
+</script>
+<h1>Maps</h1>
+<script type="application/snapdown">
+f -> (Map x = a, "b" = null)
+f -> (Map)
+x -> ((String))
+a -> ((String))
+g -> ((Map _ => f)) // immutable wrapper, no field name
+</script>
+<h1>ADTs</h1>
+<script type="application/snapdown">
+(Mutable)
+((Immutable))
+(
+MyFirstADT
+foo -> (MySecondADT)
+)
+</script>
+<h1>Sets</h1>
+<script type="application/snapdown">
+cities -> (Set<Integer> -7, 42, 1024)
+cities -> (Set<Integer> _ -> -7, _ -> 42, _ -> 1024)
+cities -> (Set<Integer> -7, 42, 1024, size -> 3)
+</script>
+<h1>Stack Frames</h1>
+<script type="application/snapdown">
+x -> (Whatever)
+
+topOfStack() {
+// NOT SUPPORTED YET
+this -> x
+foo -> 5
+}
+lowerInStack() {}
+main() {}
+</script>
+<script type="application/snapdown">
+#p -> (Payment value -> 100.0)
 Payment.taxRate -> 0.05
 System.out -> (PrintStream)
 
 println() {}
 main() {
 p -> #p
+`args`
 }
+</script>
+<h1>Threads</h1>
+<script type="application/snapdown">
+// NOT SUPPORTED YET
+// topOfStack() {}
+// lowerInStack() {}
+// main() {}
+
+// thread worker
+
+// helper() {}
+// run() {}
+</script>
+<h1>Variables</h1>
+<script type="application/snapdown">
+x -> ((String)) // reassignable
+// NOT SUPPORTED YET
+// x -`hello`> ((String)) // incorrect, labeled arrow
+x -x> ((String)) // broken arrow
+x => ((String)) // final
 </script>
 
 <br />
