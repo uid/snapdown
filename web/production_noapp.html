@@ -10,14 +10,14 @@
 <script type="application/snapdown">
 a -> [ 0, 1, 2 ]
 b -> [ (Foo), (Foo), (Foo) ]
-c -> [ #1, #1, #1 ]
+c -> [ #1, #1, `()1]`]
 #1 -> (Foo)
 </script>
 </td><td>
 <script type="application/snapdown">
 a -> [ 0, 1, 2 ]
 b -> [ (Foo), (Foo), (Foo) ]
-c -> [ #1, #1, #1 ]
+c -> [ #1 ]
 #1 -> (Foo)
 </script>
 </td></tr>
@@ -26,7 +26,7 @@ c -> [ #1, #1, #1 ]
 <script type="application/snapdown">
 (
 Whatever
-a -> 5 // points to primitive 5
+`a a` -> 5 // points to primitive 5
 b => x // points to value of x
 // NOT SUPPORTED YET
 // c => `x` // incorrect, points to variable x

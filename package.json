@@ -14,7 +14,7 @@
     "gen-parser": "node -p 'require(\"./src/snapdown.peg.js\")' | pegjs -o dist/snapdown-parser.js",
     "test": "bash precompile-hook.sh && npm run gen-parser && mocha",
     "build": "bash precompile-hook.sh && npm run gen-parser && webpack --mode production",
-    "start": "bash precompile-hook.sh && webpack -w --mode development",
+    "start": "bash precompile-hook.sh && npm run gen-parser && webpack -w --mode development",
     "lint": "pretty-quick --staged --no-restage --bail"
   },
   "dependencies": {

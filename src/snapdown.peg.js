@@ -56,11 +56,12 @@ char = "'" . "'" { return text() }
 null = "null" { return null }
 
 blank = "_" { return {} }
-ref = ((name)? "#")? name { return { ref: text() } }
+ref = ((name)? "#")? name { return { ref: text().replace(/\`/g, "") } }
 name = word / phrase
-phrase = "\`" word (_ word)* "\`" { return text().replace(/\`/g, "") }
-word = [a-z0-9~$%_+./?\[\]]i+
-type = name type_params? { return text() }
+phrase = "\`" generalword (_ generalword)* "\`" { return text().replace(/\`/g, "") }
+word = [a-z0-9~$%_+./?]i+
+generalword = [()a-z0-9~$%_+./?\[\]]i+
+type = name type_params? { return text().replace(/\`/g, "") }
 type_params = "<" type ("," type)* ">"
 
 comment = "//" [^\n\r]*
