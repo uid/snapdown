@@ -61,8 +61,9 @@ name = word / phrase
 phrase = "\`" generalword (_ generalword)* "\`" { return text().replace(/\`/g, "") }
 word = [a-z0-9~$%_+./?]i+
 generalword = [()a-z0-9~$%_+./?\[\]]i+
-type = name type_params? { return text().replace(/\`/g, "") }
+type = name type_params? array_brackets? { return text().replace(/\`/g, "") }
 type_params = "<" type ("," type)* ">"
+array_brackets = "[]"
 
 comment = "//" [^\n\r]*
 
