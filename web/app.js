@@ -52,7 +52,8 @@ class App extends React.Component {
 
   downloadSVG() {
     const element = document.createElement("a");
-    const file = new Blob([this.getSVGElement().outerHTML], {
+    const html = this.getSVGElement().outerHTML;
+    const file = new Blob([html], {
       type: "text/plain",
     });
     element.href = URL.createObjectURL(file);
@@ -247,7 +248,7 @@ class App extends React.Component {
               </Button>
               <br />
               <br />
-              <Button variant="contained" onClick={this.downloadSVG}>
+              <Button variant="contained" onClick={this.downloadSVG.bind(this)}>
                 Export to SVG
               </Button>
             </div>

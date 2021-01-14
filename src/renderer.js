@@ -259,6 +259,7 @@ function incorporate(e, graph, showHashRefs = false, includeEdges = true) {
 
   // primitive:
   if (e.val !== undefined) {
+    let labels = makeLabels(e.val);
     graph.children.push(
       Object.assign(
         {
@@ -266,7 +267,9 @@ function incorporate(e, graph, showHashRefs = false, includeEdges = true) {
           layoutOptions: {
             "elk.nodeLabels.placement": "INSIDE V_TOP H_CENTER",
           },
-          labels: makeLabels(e.val),
+          labels: labels,
+          width: labels[0].width,
+          height: labels[0].height,
         },
         e
       )
