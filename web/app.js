@@ -14,6 +14,7 @@ import {
 } from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import FileCopyIcon from "@material-ui/icons/FileCopy";
 
 import ReactHtmlParser from "react-html-parser";
 import { svgAsPngUri } from "save-svg-as-png";
@@ -42,12 +43,19 @@ class App extends React.Component {
       testMode: false,
       drawerOpen: true,
       label: "Type Snapdown here",
+      fileName: "diagram.svg",
     };
     this.timeout = 0;
   }
 
   getSVGElement() {
-    return document.querySelector('[id^="snapWeb-json-"][id*="-svg-"]');
+    let elem = document.querySelector('[id^="snapWeb-json-"][id*="-svg-"]');
+    if (elem) {
+      ["xmlns", "xmlns:svg", "xmlns:se"].forEach((x) => {
+        elem.setAttribute(x, "http://www.w3.org/2000/svg");
+      });
+    }
+    return elem;
   }
 
   downloadSVG() {
@@ -57,7 +65,7 @@ class App extends React.Component {
       type: "text/plain",
     });
     element.href = URL.createObjectURL(file);
-    element.download = "diagram.svg";
+    element.download = this.state.fileName;
     document.body.appendChild(element); // Required for this to work in FireFox
     element.click();
   }
@@ -73,6 +81,10 @@ class App extends React.Component {
       let baseUrl = window.location.href.split("#")[0];
       window.location.replace(baseUrl + "#" + encodeURIComponent(newText));
     }
+  }
+
+  getHTMLElement(field) {
+    return `<script type="application/snapdown">\n${this.state.snapdownText[field]}\n</script>`;
   }
 
   redraw(id, newText) {
@@ -229,6 +241,15 @@ class App extends React.Component {
                     this.state.error[x] ? "Unable to parse Snapdown input." : ""
                   }
                 />
+                <IconButton
+                  color="primary"
+                  style={{ height: "100%" }}
+                  onClick={() => {
+                    navigator.clipboard.writeText(this.state.snapdownText[x]);
+                  }}
+                >
+                  <FileCopyIcon />
+                </IconButton>
                 <div style={{ marginLeft: "2%" }}>
                   <script type="application/snapdown" id={x} />
                 </div>
@@ -248,9 +269,28 @@ class App extends React.Component {
               </Button>
               <br />
               <br />
+              <Button
+                variant="contained"
+                onClick={() => {
+                  navigator.clipboard.writeText(this.getHTMLElement("snapWeb"));
+                }}
+              >
+                Copy HTML Element
+              </Button>
+              <br />
+              <br />
               <Button variant="contained" onClick={this.downloadSVG.bind(this)}>
                 Export to SVG
               </Button>
+              <TextField
+                onChange={(event) =>
+                  this.setState({ fileName: event.target.value })
+                }
+                defaultValue={"diagram.svg"}
+                variant="outlined"
+                label={"File Name"}
+                style={{ marginLeft: "20px" }}
+              />
             </div>
           )}
         </div>

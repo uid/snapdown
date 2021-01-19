@@ -42,6 +42,7 @@ function createSVGRoot(setStyleId) {
 }
 
 const metrics = createSVGRoot();
+const MIN_NODE_WIDTH = 30;
 
 const makeID = (function () {
   let counter = 0;
@@ -268,7 +269,7 @@ function incorporate(e, graph, showHashRefs = false, includeEdges = true) {
             "elk.nodeLabels.placement": "INSIDE V_TOP H_CENTER",
           },
           labels: labels,
-          width: labels[0].width,
+          width: Math.max(labels[0].width, MIN_NODE_WIDTH),
           height: labels[0].height,
         },
         e
