@@ -146,9 +146,17 @@ function incorporate(e, graph, showHashRefs = false, includeEdges = true) {
       {
         "elk.nodeLabels.placement": "INSIDE V_TOP H_CENTER",
         "elk.nodeSize.constraints": "MINIMUM_SIZE",
+        "elk.position": `(${nodeSpacing * e.id}, 0)`,
       },
       ptr.layoutOptions
     );
+
+    if (stackPointedObjects.includes(e.id)) {
+      // TODO: why does this have no effect?
+      Object.assign(obj.layoutOptions, {
+        "elk.position": `(0, 0)`,
+      });
+    }
 
     graph.children.push(ptr);
 

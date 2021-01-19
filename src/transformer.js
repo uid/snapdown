@@ -56,10 +56,22 @@ function transform(spec) {
     Object.assign({}, x, { id: identify(x) })
   );
 
-  return {
+  let transformed = {
     heap: transformHeap(heapElts, stackElts),
     stack: transformHeap(stackElts, heapElts),
   };
+
+  // move all non-funcs from stack to heap
+  let newStack = [];
+  for (let i = 0; i < transformed.stack.length; i++) {
+    if (!transformed.stack[i].func) {
+      transformed.heap.push(transformed.stack[i]);
+    } else {
+      newStack.push(transformed.stack[i]);
+    }
+  }
+  transformed.stack = newStack;
+  return transformed;
 }
 
 function transformHeap(roots, others = null) {
