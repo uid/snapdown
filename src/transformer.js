@@ -49,10 +49,10 @@ function transform(spec) {
   unclaimed = {};
   ptrCounter = 0;
 
-  let heapElts = spec.heap.map((x) =>
+  let heapElts = (spec.heap || []).map((x) =>
     Object.assign({}, x, { id: identify(x) })
   );
-  let stackElts = spec.stack.map((x) =>
+  let stackElts = (spec.stack || []).map((x) =>
     Object.assign({}, x, { id: identify(x) })
   );
 

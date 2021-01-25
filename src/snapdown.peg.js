@@ -3,11 +3,21 @@
 module.exports = String.raw`
 {
   function merge() { return Object.assign({}, ...arguments); }
+  function mergeSections() {
+    let merged = {};
+    for (let sect of arguments) {
+      if ( ! sect) continue;
+      for (let key in sect) {
+        merged[key] = (merged[key] || []).concat(sect[key]);
+      }
+    }
+    return merged;
+  }
 }
 
-diagram = heap:heap stack:stack $* { return { heap, stack } }
+diagram = sections:(section:(heap / stack) $* { return section })* { return mergeSections(...sections) }
 
-stack = functions:($* it:function { return it })* { return functions }
+stack = functions:($* it:function { return it })+ { return { stack: functions } }
 
 function = func:funcname _ target:(arrow:arrow _ parent:funcname _ { return parent })? "{" $* defs:defs $* "}" {
   return target ? merge({ func, target }, defs) : merge({ func }, defs)
@@ -18,7 +28,7 @@ defs = defs:(deflist)? { return { fields: defs || [] } }
 deflist = first:def rest:(comma it:def { return it })* { return [ first, ...rest ] }
 def = pointer / value
 
-heap = vals:($* it:(pointer / value) { return it })* { return vals }
+heap = vals:($* it:(pointer / value) { return it })+ { return { heap: vals } }
 
 pointer = name:lhs _? arrow:arrow _? target:rhs { return merge({ name, target }, arrow) }
 lhs = blank / ref

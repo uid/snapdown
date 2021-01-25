@@ -73,12 +73,27 @@ cities -> (Set<Integer> -7, 42, 1024, size -> 3)
 x -> (Whatever)
 
 topOfStack() {
-// NOT SUPPORTED YET
 this -> x
 foo -> 5
 }
 lowerInStack() {}
 main() {}
+</script>
+<script type="application/snapdown">
+x -> (Whatever)
+
+topOfStack() {
+this -> x
+foo -> y
+}
+lowerInStack() {}
+main() {}
+
+y -> (Whatever)
+
+evenLowerInStack() {
+z -> 5
+}
 </script>
 <script type="application/snapdown">
 #p -> (Payment value -> 100.0)

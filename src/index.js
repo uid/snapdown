@@ -43,6 +43,7 @@ function parseText(scriptElement) {
   let script = yamlfront.safeLoadFront(scriptElement.text);
   let text = script.__content;
   let spec = transformer.parse(text);
+  console.log(spec);
   let snap = transformer.transform(spec);
 
   let jsonElement = document.createElement("script");
