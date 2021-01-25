@@ -15,7 +15,10 @@ module.exports = String.raw`
   }
 }
 
-diagram = sections:(section:(heap / stack) $* { return section })* { return mergeSections(...sections) }
+animation = first:diagram rest:(frameseparator it:diagram { return it })* { return [ first, ...rest ] }
+frameseparator = "---" "-"*
+
+diagram = $* sections:(section:(heap / stack) { return section })* $* { return mergeSections(...sections) }
 
 stack = functions:($* it:function { return it })+ { return { stack: functions } }
 
