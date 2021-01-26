@@ -43,6 +43,11 @@ function parseText(scriptElement) {
   let script = yamlfront.safeLoadFront(scriptElement.text);
   let text = script.__content;
   let spec = transformer.parse(text);
+
+  return spec;
+}
+
+function transformSpec(scriptElement, spec) {
   let snap = transformer.transform(spec);
 
   let jsonElement = document.createElement("script");
@@ -160,9 +165,13 @@ function renderJSON(jsonElement, callback) {
 function render(elt, callback) {
   let created = [];
   if (elt.matches(scriptSelector)) {
-    let jsonElement = parseText(elt);
-    created.push(jsonElement.id);
-    created.push(renderJSON(jsonElement, callback));
+    let diagrams = parseText(elt);
+
+    for (let spec of diagrams) {
+      let jsonElement = transformSpec(elt, spec);
+      created.push(jsonElement.id);
+      created.push(renderJSON(jsonElement, callback));
+    }
   }
   return created;
 }
@@ -174,10 +183,14 @@ function renderAll(shouldThrow = true, callback) {
   let created = [];
   scriptElements.map((x) => {
     try {
-      let y = parseText(x);
-      created.push(y.id);
-      let graphId = renderJSON(y, callback);
-      created.push(graphId);
+      let diagrams = parseText(x);
+
+      for (let spec of diagrams) {
+        let y = transformSpec(x, spec);
+        created.push(y.id);
+        let graphId = renderJSON(y, callback);
+        created.push(graphId);
+      }
     } catch (err) {
       if (shouldThrow) {
         throw err;

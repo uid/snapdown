@@ -202,8 +202,7 @@ function lookupRef(ref, ancestors, visited) {
 
 function parse(text) {
   try {
-    let parsed = parser.parse(text);
-    return parsed[0];
+    return parser.parse(text);
   } catch (e) {
     if (e.location) {
       e.message += ` (line ${e.location.start.line} col ${e.location.start.column})`;
