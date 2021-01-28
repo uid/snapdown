@@ -7,6 +7,7 @@ const transformer = require("./transformer");
 const renderer = require("./renderer");
 const sidebar = require("./sidebar");
 const pathfinding = require("./pathfinding");
+const animation = require("./animation");
 
 const scriptSelector = 'script[type="application/snapdown"]';
 const jsonSelector = 'script[type="application/snapdown+json"]';
@@ -44,11 +45,24 @@ function parseText(scriptElement) {
   let text = script.__content;
   let spec = transformer.parse(text);
 
-  return spec;
+  console.log(spec);
+
+  return animation.specToDiagrams(spec);
 }
+
+// lay out all diagrams (but don't render)
+
+// getMasterDiagram:
+// from list of diagrams, get a "master diagram"
+// for each ref, get max width/height recursively
+
+// getIndividualDiagrams:
+// from master diagram, get each individual diagram
+// replace big things with smaller ones per diagram
 
 function transformSpec(scriptElement, spec) {
   let snap = transformer.transform(spec);
+  console.log(snap);
 
   let jsonElement = document.createElement("script");
   jsonElement.text = JSON.stringify(snap);

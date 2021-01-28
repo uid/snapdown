@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link rel="stylesheet" href="../docs/snapdown.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
 <script src="../dist/snapdown.js"></script>
 </head>
 <body>
-<script type="application/snapdown">
+<!-- <script type="application/snapdown">
 tarr -> [t]
 t -> "a"
 tarr2 -> (String[])
@@ -125,20 +126,22 @@ x -> ((String)) // reassignable
 // x -`hello`> ((String)) // incorrect, labeled arrow
 x -x> ((String)) // broken arrow
 x => ((String)) // final
-</script>
-
+</script> -->
+<h1>Animated Diagrams</h1>
 <script type="application/snapdown">
-x -> ((String)) // reassignable
-// NOT SUPPORTED YET
-// x -`hello`> ((String)) // incorrect, labeled arrow
-x -x> ((String)) // broken arrow
-x => ((String)) // final
---------
-x -> ((String)) // reassignable
-// NOT SUPPORTED YET
-// x -`hello`> ((String)) // incorrect, labeled arrow
-x -x> ((String)) // broken arrow
-x => ((String)) // final
+t -> ((string "a"))
+tarr -> (Array<string> 0 -> t)
+---
+s -> t
+arr -> tarr
+---
+#r -> ((string "ac"))
+s -x> t
+s -> #r
+---
+tarr -> (Array<string> 0 -> t, 1 -> ((string "d")))
+---
+arr -> 2
 </script>
 
 <br />

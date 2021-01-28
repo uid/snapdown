@@ -212,4 +212,4 @@ function parse(text) {
   }
 }
 
-module.exports = { parse, transform };
+module.exports = { parse, transform, identifyPtrSource };
