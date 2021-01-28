@@ -88,7 +88,7 @@ function replaceRefInDiagram(diffPart, diagram, snap, iter) {
 
 function specToDiagrams(spec) {
   if (spec.length == 1) {
-    return spec[0];
+    return spec;
   }
   let diagrams = [spec[0]];
   let curDiagram = $.extend(true, {}, spec[0]);
