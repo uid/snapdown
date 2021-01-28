@@ -45,8 +45,6 @@ function parseText(scriptElement) {
   let text = script.__content;
   let spec = transformer.parse(text);
 
-  console.log(spec);
-
   return animation.specToDiagrams(spec);
 }
 
@@ -62,7 +60,6 @@ function parseText(scriptElement) {
 
 function transformSpec(scriptElement, spec) {
   let snap = transformer.transform(spec);
-  console.log(snap);
 
   let jsonElement = document.createElement("script");
   jsonElement.text = JSON.stringify(snap);

@@ -98,10 +98,6 @@ function specToDiagrams(spec) {
     let diff = spec[i].heap;
     let curSnap = transformer.transform(curDiagram);
 
-    console.log(curDiagram);
-    console.log(curSnap);
-    console.log(diff);
-
     // process each part of the diff
     for (let j = 0; j < diff.length; j++) {
       if (diff[j].name.ref) {
