@@ -56,7 +56,7 @@ function replaceRefInDiagram(diffPart, diagram, snap, iter) {
             resolved = true;
           }
           // not independent: delete heap element
-          else toDeleteHeap.push(j);
+          else toDeleteElems.push(j);
         } else if (
           fieldId[i] &&
           newDiagram.heap[j].target &&
@@ -72,8 +72,8 @@ function replaceRefInDiagram(diffPart, diagram, snap, iter) {
           }
           for (let f of toDeleteFields) fields.splice(f, 1);
         }
-        for (let e of toDeleteElems) newDiagram.heap[j].splice(e, 1);
       }
+      for (let e of toDeleteElems) newDiagram.heap.splice(e, 1);
     }
     // if still unresolved, just add the diff part
     if (!resolved) {
