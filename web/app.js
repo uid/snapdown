@@ -112,6 +112,7 @@ class App extends React.Component {
       error[id] = false;
       this.setState({ error: error, created: created });
     } catch (err) {
+      console.log(err);
       error[id] = true;
       this.setState({ error: error, created: created });
     }

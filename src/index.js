@@ -48,13 +48,13 @@ function parseText(scriptElement) {
   return animation.specToDiagrams(spec);
 }
 
-// lay out all diagrams (but don't render)
+// TODO lay out all diagrams (but don't render)
 
-// getMasterDiagram:
+// TODO getMasterDiagram:
 // from list of diagrams, get a "master diagram"
 // for each ref, get max width/height recursively
 
-// getIndividualDiagrams:
+// TODO getIndividualDiagrams:
 // from master diagram, get each individual diagram
 // replace big things with smaller ones per diagram
 

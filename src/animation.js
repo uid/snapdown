@@ -1,6 +1,7 @@
 "use strict";
 
 const transformer = require("./transformer");
+const $ = require("jquery");
 
 function replaceRefInDiagram(diffPart, diagram, snap, iter) {
   let newDiagram = $.extend(true, {}, diagram);
