@@ -60,7 +60,8 @@ function replaceRefInDiagram(diffPart, diagram, snap, iter) {
         } else if (
           fieldId[i] &&
           newDiagram.heap[j].target &&
-          newDiagram.heap[j].target.fields
+          newDiagram.heap[j].target.fields &&
+          newDiagram.heap[j].target.id == id[i]
         ) {
           let fields = newDiagram.heap[j].target.fields;
           let toDeleteFields = [];

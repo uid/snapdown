@@ -143,6 +143,21 @@ tarr -> (Array<string> 0 -> t, 1 -> ((string "d")))
 ---
 arr -> 2
 </script>
+<script type="application/snapdown">
+t -> ((string "a"))
+#1 -> (Obj field -> t)
+tarr -> #1
+s -> #1
+---
+field -x> t
+field -> 5
+</script>
+<script type="application/snapdown">
+a -> (Obj field -> 2)
+a -> 6
+---
+field -> (String "a")
+</script>
 
 <br />
 
