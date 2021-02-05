@@ -153,10 +153,36 @@ field -x> t
 field -> 5
 </script>
 <script type="application/snapdown">
-a -> (Obj field -> 2)
-a -> 6
+#aeiou -> ((String "aeiou"))
+text2 -> #aeiou
+text3 => #aeiou
+
 ---
-field -> (String "a")
+
+#1 -> 'a'
+text0 -> #1
+text1 => #1
+
+text4 -> [#3, 'e', 'i', 'o', 'u']
+text5 => text4
+
+#3 -> #1
+
+---
+
+text0 -> 'y'
+text0 -x> #1
+text1 => #1
+
+---
+
+text2 -x> #aeiou
+text2 -> ((String "uoiea"))
+
+---
+
+#3 -> 'z'
+#3 -x> #1
 </script>
 
 <br />
