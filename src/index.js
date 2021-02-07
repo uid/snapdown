@@ -173,7 +173,7 @@ function renderJSON(jsonElement, callback) {
   return id;
 }
 
-function renderText(text, location, callback) {
+function renderText(text, callback) {
   let elt = document.createElement("script");
   elt.type = "application/snapdown";
   let diagrams = parseText(elt);
@@ -296,6 +296,7 @@ function showExample(id) {
 }
 
 module.exports = {
+  renderText,
   render,
   renderAll,
   populateHelp,
