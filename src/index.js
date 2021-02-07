@@ -139,7 +139,7 @@ function pathfindCombineDraw(id, jsonElement, graphsAfterLayout) {
     });
   }
 
-  jsonElement.parentNode.insertBefore(combined, jsonElement.nextSibling);
+  return combined;
 }
 
 // layout and render Snapdown JSON
@@ -164,13 +164,32 @@ function renderJSON(jsonElement, callback) {
   });
 
   Promise.all(promises).then(() => {
-    pathfindCombineDraw(id, jsonElement, graphsAfterLayout);
+    let combined = pathfindCombineDraw(id, jsonElement, graphsAfterLayout);
     if (callback) {
-      callback();
+      callback(combined);
     }
   });
 
   return id;
+}
+
+function renderText(text, location, callback) {
+  let elt = document.createElement("script");
+  elt.type = "application/snapdown";
+  let diagrams = parseText(elt);
+
+  for (let spec of diagrams) {
+    let jsonElement = transformSpec(elt, spec);
+    created.push(jsonElement.id);
+    created.push(
+      renderJSON(jsonElement, (combined) => {
+        if (callback) {
+          callback(combined);
+        }
+      })
+    );
+  }
+  return created;
 }
 
 function render(elt, callback) {
@@ -181,7 +200,17 @@ function render(elt, callback) {
     for (let spec of diagrams) {
       let jsonElement = transformSpec(elt, spec);
       created.push(jsonElement.id);
-      created.push(renderJSON(jsonElement, callback));
+      created.push(
+        renderJSON(jsonElement, (combined) => {
+          jsonElement.parentNode.insertBefore(
+            combined,
+            jsonElement.nextSibling
+          );
+          if (callback) {
+            callback(combined);
+          }
+        })
+      );
     }
   }
   return created;
@@ -199,7 +228,12 @@ function renderAll(shouldThrow = true, callback) {
       for (let spec of diagrams) {
         let y = transformSpec(x, spec);
         created.push(y.id);
-        let graphId = renderJSON(y, callback);
+        let graphId = renderJSON(y, (combined) => {
+          y.parentNode.insertBefore(combined, y.nextSibling);
+          if (callback) {
+            callback(combined);
+          }
+        });
         created.push(graphId);
       }
     } catch (err) {
