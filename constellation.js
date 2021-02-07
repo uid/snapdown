@@ -3,23 +3,19 @@ diagram.id = 'diagram';
 
 let br = document.createElement('br');
 
-let error = document.createElement('font');
-error.id = 'error';
-error.color = 'red';
-
-[diagram, br, error].forEach(x => {
+[diagram, br].forEach(x => {
   document.getElementById('extra').appendChild(x);
 });
 
 doc.on('op', () => {
-  console.log('test');
   let input = document.getElementById('text').value;
+  let elt = document.createElement("script");
+  elt.type = "application/snapdown";
+  elt.innerHTML = input;
+  diagram.replaceChildren(elt);
   try {
-    Snapdown.renderText(input, 'diagram', (combined) => {
-      document.getElementById('diagram').replaceChildren(combined);
-    });
+    Snapdown.render(elt);
   } catch (e) {
-    document.getElementById('error').text = e.message;
+    document.getElementById('error').innerHTML = "Unable to parse Snapdown input.";
   }
 });
-
