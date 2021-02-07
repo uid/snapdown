@@ -12,6 +12,7 @@ error.color = 'red';
 });
 
 doc.on('op', () => {
+  console.log('test');
   let input = document.getElementById('text').value;
   try {
     Snapdown.renderText(input, 'diagram', (combined) => {
