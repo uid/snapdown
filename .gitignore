@@ -2,3 +2,5 @@
 node_modules
 deploy.sh
 .DS_Store
+src/*.js*
+dist/*.js*
