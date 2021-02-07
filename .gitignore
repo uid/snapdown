@@ -1,0 +1,4 @@
+.vagrant
+node_modules
+deploy.sh
+.DS_Store
