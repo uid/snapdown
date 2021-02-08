@@ -26,14 +26,20 @@ d -> [#1]
 <h1>Fields</h1>
 <script type="application/snapdown">
 (
-Whatever
-`a a` -> 5 // points to primitive 5
-b => x // points to value of x
-// NOT SUPPORTED YET
-// c => `x` // incorrect, points to variable x
-d -> (Whatever) // points to a Whatever
+  Whatever
+  `a a` -> 5 // points to primitive 5
+  b => x // points to value of x
+  // c => `x` // incorrect, points to variable x
+  d -> (Whatever) // points to a Whatever
+  `a:int` -> 5
 )
 x -> (Whatever)
+</script>
+<script type="application/snapdown">
+  (A
+           a -> 5
+)
+// hi!
 </script>
 <h1>Heap</h1>
 <script type="application/snapdown">

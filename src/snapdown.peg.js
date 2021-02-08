@@ -18,9 +18,9 @@ module.exports = String.raw`
 animation = first:diagram rest:(frameseparator it:diagram { return it })* { return [ first, ...rest ] }
 frameseparator = "---" "-"*
 
-diagram = $* sections:(section:(heap / stack) { return section })* $* { return mergeSections(...sections) }
+diagram = $* sections:($* section:(heap / stack) { return section })* $* { return mergeSections(...sections) }
 
-stack = functions:($* it:function { return it })+ { return { stack: functions } }
+stack = $* functions:($* it:function { return it })+ { return { stack: functions } }
 
 function = func:funcname _ target:(arrow:arrow _ parent:funcname _ { return parent })? "{" $* defs:defs $* "}" {
   return target ? merge({ func, target }, defs) : merge({ func }, defs)
@@ -31,7 +31,7 @@ defs = defs:(deflist)? { return { fields: defs || [] } }
 deflist = first:def rest:(comma it:def { return it })* { return [ first, ...rest ] }
 def = pointer / value
 
-heap = vals:($* it:(pointer / value) { return it })+ { return { heap: vals } }
+heap = $* vals:($* it:(pointer / value) { return it })+ { return { heap: vals } }
 
 pointer = name:lhs _? arrow:arrow _? target:rhs { return merge({ name, target }, arrow) }
 lhs = blank / ref
@@ -47,7 +47,7 @@ value = object / array / string / primitive
 object = mutable / immutable
 mutable = "(" internals:internals ")" { return internals }
 immutable = "((" internals:internals "))" { return merge({ immutable: true }, internals) }
-internals = $* object:type _ $* _ fields:fields _ $* { return { object, fields } }
+internals = $* _ object:type _ $* _ fields:fields _ $* { return { object, fields } }
 
 fields = fields:(fieldlist)? { return fields || [] }
 fieldlist = first:field rest:(comma it:field { return it })* { return [ first, ...rest ] }
@@ -73,7 +73,7 @@ ref = ((name)? "#")? name { return { ref: text().replace(/\`/g, "") } }
 name = word / phrase
 phrase = "\`" generalword (_ generalword)* "\`" { return text().replace(/\`/g, "") }
 word = [a-z0-9~$%_+./?]i+
-generalword = [()a-z0-9~$%_+./?\[\]]i+
+generalword = [()a-z0-9~$%_+./?\[\]:]i+
 type = name type_params? array_brackets? { return text().replace(/\`/g, "") }
 type_params = "<" type ("," type)* ">"
 array_brackets = "[]"
@@ -81,6 +81,6 @@ array_brackets = "[]"
 comment = "//" [^\n\r]*
 
 _ = [ \t]*
-$ = _ comment? [\n\r]+
-comma = _ ("," / $) _ $*
+$ = _ comment? [\n\r]+ _
+comma = _ ("," / $*) _ $*
 `;
