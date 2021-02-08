@@ -3,7 +3,7 @@
 // FIXME: how to make this work in development?
 const PF = require("pathfinding");
 
-const granularity = 10;
+const granularity = 5;
 
 // hack: get offset of heap from top-left
 function getHeapOffset(graphs) {
@@ -25,15 +25,17 @@ function getGridSize(graphs) {
   };
 }
 
-function getRoughEdgeList(graph, objInfo, grid) {
+function getRoughEdgeList(graph, objInfo) {
   let roughEdgeList = [];
-  if (!graph.children) return roughEdgeList;
+  let sourceIds = [];
+  if (!graph.children) return [roughEdgeList, sourceIds];
 
   if (graph.roughEdges) {
     graph.roughEdges.forEach((roughEdge) => {
       // TODO are all these actually needed?
       if (roughEdge.source && roughEdge.target && roughEdge.target.to) {
         let sourceId = roughEdge.source;
+        sourceIds.push(sourceId);
         let targetId = roughEdge.target.to[0].id;
         // TODO are these actually needed?
         if (sourceId in objInfo && targetId in objInfo) {
@@ -44,9 +46,15 @@ function getRoughEdgeList(graph, objInfo, grid) {
               Math.ceil((sourceInfo.x + sourceInfo.width) / granularity),
               Math.ceil(sourceInfo.y / granularity),
               Math.floor(targetInfo.x / granularity),
-              Math.floor(targetInfo.y / granularity),
+              Math.floor((targetInfo.y + targetInfo.height / 2) / granularity),
             ],
-            target: [targetInfo.x, targetInfo.y],
+            source: [
+              sourceInfo.x + sourceInfo.width,
+              sourceInfo.y + sourceInfo.height / 2,
+            ],
+            target: [targetInfo.x, targetInfo.y + targetInfo.height / 2],
+            sourceId,
+            targetId,
           });
         }
       }
@@ -54,10 +62,12 @@ function getRoughEdgeList(graph, objInfo, grid) {
   }
 
   graph.children.forEach((child) => {
-    roughEdgeList.push(...getRoughEdgeList(child, objInfo, grid));
+    let [a, b] = getRoughEdgeList(child, objInfo);
+    roughEdgeList.push(...a);
+    sourceIds.push(...b);
   });
 
-  return roughEdgeList;
+  return [roughEdgeList, sourceIds];
 }
 
 // { obstacles: <OBSTACLES>, objInfo: <OBJINFO> }
@@ -75,7 +85,7 @@ function getObstaclesAndObjInfo(graph, parentObjInfo, offset) {
       // TODO reduce duplicate code
       if (obj.object || obj.func) {
         let info = {
-          type: "node",
+          type: obj.object ? "node" : "func",
           x: obj.x + offset.x,
           y: obj.y + offset.y,
           width: obj.width,
@@ -89,7 +99,7 @@ function getObstaclesAndObjInfo(graph, parentObjInfo, offset) {
         let labels = [];
         obj.labels.forEach((label) => {
           info = {
-            type: "node",
+            type: "label",
             x: obj.x + label.x + offset.x,
             y: obj.y + label.y + offset.y,
             width: label.width,
@@ -100,7 +110,7 @@ function getObstaclesAndObjInfo(graph, parentObjInfo, offset) {
           labels.push(info);
         });
         // TODO can there be more than one info for a value?
-        if (graph.id in objInfo && objInfo[graph.id].type == "node") {
+        if (graph.id in objInfo && objInfo[graph.id].type == "func") {
           let parentLabels = objInfo[graph.id].labels || [];
           objInfo[graph.id] = Object.assign(objInfo[graph.id], {
             labels: parentLabels.concat(labels),
@@ -142,24 +152,39 @@ function getObstaclesAndObjInfo(graph, parentObjInfo, offset) {
   return { obstacles, objInfo };
 }
 
-function getPFGrid(gridSize, obstacleInfo, objInfo) {
+function getPFGrid(gridSize, obstacleInfo, objInfo, sourceIds) {
   // TODO: eventually deal with edges?
   let grid = new PF.Grid(
     Math.ceil(gridSize.x / granularity),
-    Math.ceil(gridSize.y / granularity)
+    Math.ceil(gridSize.y / granularity) + 5
   );
 
+  let holeInfo = {};
+
   obstacleInfo.forEach((obstacle) => {
-    if (obstacle.type == "node") {
+    if (
+      obstacle.type == "node" ||
+      obstacle.type == "func" ||
+      obstacle.type == "label"
+    ) {
+      // bottomSpace is used to indicate that arrows should not go between
+      // nodes & things their fields point at
+      const topSpace = obstacle.type == "node" ? 2 * granularity : 0;
+      const bottomSpace = obstacle.type == "node" ? 5 * granularity : 0;
       let minX = obstacle.x,
         maxX = obstacle.x + obstacle.width;
-      let minY = obstacle.y,
-        maxY = obstacle.y + obstacle.height;
+      let minY = Math.max(obstacle.y - topSpace, 0),
+        maxY = Math.min(obstacle.y + obstacle.height + bottomSpace, gridSize.y);
 
       // y-indices to "punch holes" at
-      let holeYs = (objInfo[obstacle.id].labels || []).map((label) =>
-        Math.floor(label.y / granularity)
-      );
+      let labels = objInfo[obstacle.id].labels || [];
+      let holeYs = [];
+      let holeYsToIds = {};
+      for (let label of labels) {
+        let y = Math.floor(label.y / granularity);
+        holeYs.push(y);
+        holeYsToIds[y] = label.id;
+      }
 
       // coarse grid that only blocks out the borders
       for (let i = minX; i <= maxX; i += granularity) {
@@ -175,7 +200,9 @@ function getPFGrid(gridSize, obstacleInfo, objInfo) {
 
         // "punch a hole" to the right of each label
         // TODO: both sides?
-        if (holeYs.includes(row)) continue;
+        if (holeYs.includes(row)) {
+          holeInfo[holeYsToIds[row]] = [Math.floor(maxX / granularity), row];
+        }
 
         grid.setWalkableAt(Math.floor(maxX / granularity), row, false);
       }
@@ -185,11 +212,13 @@ function getPFGrid(gridSize, obstacleInfo, objInfo) {
     }
   });
 
-  return grid;
+  return { grid, holeInfo };
 }
 
-function inflatePath(path) {
-  return path.map((x) => x.map((y) => y * granularity));
+function inflatePath(path, source, target) {
+  const horizontalLen = 10;
+  let inflatedPath = path.map((x) => x.map((y) => y * granularity));
+  return inflatedPath;
 }
 
 function layoutRoughEdges(graphs) {
@@ -216,23 +245,31 @@ function layoutRoughEdges(graphs) {
     objInfo = Object.assign(objInfo, graphResult.objInfo);
   });
 
+  let roughEdgeList = [],
+    sourceIds = [];
+  graphs.forEach((graph) => {
+    let [a, b] = getRoughEdgeList(graph, objInfo);
+    roughEdgeList.push(...a);
+    sourceIds.push(...b);
+  });
+
   // get grid from obstacles
   // and get rough edge list + their starts and ends
-  let grid = getPFGrid(gridSize, obstacles, objInfo);
-
-  let roughEdgeList = [];
-  graphs.forEach((graph) => {
-    roughEdgeList.push(...getRoughEdgeList(graph, objInfo, grid));
-  });
+  let { grid, holeInfo } = getPFGrid(gridSize, obstacles, objInfo, sourceIds);
 
   // TODO best finder?
   let finder = new PF.AStarFinder({ allowDiagonal: true });
   let paths = [];
   roughEdgeList.forEach((roughEdge) => {
-    let { edge, target } = roughEdge;
+    let { edge, source, target, sourceId } = roughEdge;
+    let holeXY = holeInfo[sourceId];
     let gridBackup = grid.clone();
+    gridBackup.setWalkableAt(holeXY[0], holeXY[1], true);
     let path = finder.findPath(...edge, gridBackup);
-    paths.push(inflatePath(PF.Util.smoothenPath(gridBackup, path)));
+    //paths.push(inflatePath(path, source, target));
+    paths.push(
+      inflatePath(PF.Util.smoothenPath(gridBackup, path), source, target)
+    );
   });
 
   return paths;

@@ -187,6 +187,7 @@ function incorporate(e, graph, showHashRefs = false, includeEdges = true) {
           "elk.layered.crossingMinimization.semiInteractive": true,
           "elk.position": `(${nodeSpacing * e.id}, 0)`,
           "elk.layered.crossingMinimization.layerChoiceConstraint": e.id,
+          "elk.layered.mergeEdges": true,
         },
         labels,
         children: [],
@@ -237,6 +238,7 @@ function incorporate(e, graph, showHashRefs = false, includeEdges = true) {
         id: makeID("arr"),
         layoutOptions: {
           "elk.layered.crossingMinimization.semiInteractive": true,
+          "elk.layered.mergeEdges": true,
         },
         children: [],
         edges: [],
@@ -275,6 +277,7 @@ function incorporate(e, graph, showHashRefs = false, includeEdges = true) {
           id: makeID("val"),
           layoutOptions: {
             "elk.nodeLabels.placement": "INSIDE V_TOP H_CENTER",
+            "elk.position": `(${nodeSpacing * e.id}, 0)`,
           },
           labels: labels,
           width: Math.max(labels[0].width, MIN_NODE_WIDTH),
