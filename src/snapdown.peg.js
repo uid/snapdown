@@ -15,7 +15,7 @@ module.exports = String.raw`
   }
 }
 
-animation = first:diagram rest:(frameseparator it:diagram { return it })* { return [ first, ...rest ] }
+animation = _ $* first:diagram rest:($* frameseparator $* it:diagram { return it })* { return [ first, ...rest ] }
 frameseparator = "---" "-"*
 
 diagram = $* sections:($* section:(heap / stack) { return section })* $* { return mergeSections(...sections) }
