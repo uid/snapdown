@@ -45,9 +45,9 @@ function getRoughEdgeList(graph, objInfo) {
           let targetInfo = objInfo[targetId];
           roughEdgeList.push({
             edge: [
-              Math.ceil((sourceInfo.x + sourceInfo.width) / granularity),
+              Math.ceil((sourceInfo.x + sourceInfo.width) / granularity + 1),
               Math.ceil(sourceInfo.y / granularity),
-              Math.floor(targetInfo.x / granularity),
+              Math.floor(targetInfo.x / granularity - 1),
               Math.floor((targetInfo.y + targetInfo.height / 2) / granularity),
             ],
             source: [

@@ -48,7 +48,7 @@ const examples = {
     percentSize: "80",
   },
   unnamed: {
-    name: "Unnamed references <b>(NEW)</b>",
+    name: "Unnamed references",
     snapdown:
       '#sem -> (\nSemester\nseason -> ((String "Fall"))\nyear -> 2020\n)\nc1 -> (\nCourse\n`...`\nsemester -> #sem\n)\nc2 -> (\nCourse\n`...`\nsemester -> #sem\n)',
     explanation:
@@ -56,6 +56,14 @@ const examples = {
                   the <tt>#sem</tt> name is never actually drawn in the diagram, but we can use it \
                   inside the two <tt>Course</tt> objects to avoid deeper nesting, and to avoid repeating \
                   the same <tt>Semester</tt> object twice.",
+    percentSize: "70",
+  },
+  unnamed: {
+    name: "Stack frames",
+    snapdown:
+      'main() {\ns -> (\nSemester\nseason -> ((String "Fall"))\n)\nseason2 -> season\n}\nt => s',
+    explanation:
+      "This example shows a function <tt>main()</tt> with local variables <tt>s</tt> and <tt>season2</tt>.",
     percentSize: "70",
   },
 };

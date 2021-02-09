@@ -14,7 +14,7 @@ module.exports = [
     entry: ["./src/index.js"],
     output: {
       path: abs("dist"),
-      filename: "snapdown.js",
+      filename: "snapdown-020921.js",
       library: "Snapdown",
     },
     devtool: "source-map",
