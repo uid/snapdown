@@ -151,13 +151,6 @@ function incorporate(e, graph, showHashRefs = false, includeEdges = true) {
       ptr.layoutOptions
     );
 
-    if (stackPointedObjects.includes(e.id)) {
-      // TODO: why does this have no effect?
-      Object.assign(obj.layoutOptions, {
-        "elk.position": `(0, 0)`,
-      });
-    }
-
     graph.children.push(ptr);
 
     for (var to of ptr.target.to) {
