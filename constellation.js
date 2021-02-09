@@ -49,6 +49,12 @@ function snapdownTextboxOnChange() {
   }
 }
 
-doc.on('load', snapdownTextboxOnChange);
+doc.on('load', () => {
+  snapdownTextboxOnChange();
+  document.body.insertAdjacentHTML("afterbegin", `<div id="snapdownHelpLocation"></div>`);
+  document.getElementById('extra').insertAdjacentHTML("afterbegin", `<p class="no-markdown"><a href="#" onclick="Snapdown.showHelp(); return false;" id="showSnapdownHelp"><strong>Click to show Snapdown help sidebar</strong></a></p>`)
+  Snapdown.populateHelp("snapdownHelpLocation");
+  Snapdown.renderAll();
+});
 
 doc.on('op', snapdownTextboxOnChange);
