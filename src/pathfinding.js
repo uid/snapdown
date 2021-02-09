@@ -4,6 +4,8 @@
 const PF = require("pathfinding");
 
 const granularity = 5;
+const nodeTopSpace = 10,
+  nodeBottomSpace = 25;
 
 // hack: get offset of heap from top-left
 function getHeapOffset(graphs) {
@@ -55,6 +57,7 @@ function getRoughEdgeList(graph, objInfo) {
             target: [targetInfo.x, targetInfo.y + targetInfo.height / 2],
             sourceId,
             targetId,
+            crossed: Boolean(roughEdge.crossed),
           });
         }
       }
@@ -169,8 +172,8 @@ function getPFGrid(gridSize, obstacleInfo, objInfo, sourceIds) {
     ) {
       // bottomSpace is used to indicate that arrows should not go between
       // nodes & things their fields point at
-      const topSpace = obstacle.type == "node" ? 2 * granularity : 0;
-      const bottomSpace = obstacle.type == "node" ? 5 * granularity : 0;
+      const topSpace = obstacle.type == "node" ? nodeTopSpace : 0;
+      const bottomSpace = obstacle.type == "node" ? nodeBottomSpace : 0;
       let minX = obstacle.x,
         maxX = obstacle.x + obstacle.width;
       let minY = Math.max(obstacle.y - topSpace, 0),
@@ -215,9 +218,12 @@ function getPFGrid(gridSize, obstacleInfo, objInfo, sourceIds) {
   return { grid, holeInfo };
 }
 
-function inflatePath(path, source, target) {
-  const horizontalLen = 10;
-  let inflatedPath = path.map((x) => x.map((y) => y * granularity));
+function inflatePath(path, source, target, numEdgesFrom) {
+  numEdgesFrom[source] = (numEdgesFrom[source] || 0) + 2;
+  let inflatedPath = path.map((x) => [
+    x[0] * granularity,
+    (x[1] + numEdgesFrom[source] - 2) * granularity,
+  ]);
   return inflatedPath;
 }
 
@@ -260,16 +266,22 @@ function layoutRoughEdges(graphs) {
   // TODO best finder?
   let finder = new PF.AStarFinder({ allowDiagonal: true });
   let paths = [];
+  let numEdgesFrom = {};
   roughEdgeList.forEach((roughEdge) => {
     let { edge, source, target, sourceId } = roughEdge;
     let holeXY = holeInfo[sourceId];
     let gridBackup = grid.clone();
     gridBackup.setWalkableAt(holeXY[0], holeXY[1], true);
     let path = finder.findPath(...edge, gridBackup);
-    //paths.push(inflatePath(path, source, target));
-    paths.push(
-      inflatePath(PF.Util.smoothenPath(gridBackup, path), source, target)
-    );
+    paths.push({
+      path: inflatePath(
+        PF.Util.smoothenPath(gridBackup, path),
+        source,
+        target,
+        numEdgesFrom
+      ),
+      crossed: roughEdge.crossed,
+    });
   });
 
   return paths;

@@ -497,29 +497,33 @@ function drawEdge(parent, styleId, edge) {
   parent.append(path);
 
   if (edge.crossed) {
-    var midpoint = path.getPointAtLength(path.getTotalLength() / 2);
-    var cross = createSVG("path", "snap-x");
-
-    const crossSize = 5;
-    const pointTypes = ["M", "L", "M", "L"];
-    const crossXs = [-crossSize, crossSize, -crossSize, crossSize];
-    const crossYs = [-crossSize, crossSize, crossSize, -crossSize];
-
-    cross.setAttribute(
-      "d",
-      [].concat
-        .apply(
-          [],
-          [...Array(4).keys()].map((i) => [
-            pointTypes[i],
-            midpoint.x + crossXs[i],
-            midpoint.y + crossYs[i],
-          ])
-        )
-        .join(" ")
-    );
-    parent.append(cross);
+    addCross(parent, path);
   }
 }
 
-module.exports = { drawable, draw, createSVG, createSVGRoot };
+function addCross(parent, path) {
+  var midpoint = path.getPointAtLength(path.getTotalLength() / 2);
+  var cross = createSVG("path", "snap-x");
+
+  const crossSize = 5;
+  const pointTypes = ["M", "L", "M", "L"];
+  const crossXs = [-crossSize, crossSize, -crossSize, crossSize];
+  const crossYs = [-crossSize, crossSize, crossSize, -crossSize];
+
+  cross.setAttribute(
+    "d",
+    [].concat
+      .apply(
+        [],
+        [...Array(4).keys()].map((i) => [
+          pointTypes[i],
+          midpoint.x + crossXs[i],
+          midpoint.y + crossYs[i],
+        ])
+      )
+      .join(" ")
+  );
+  parent.append(cross);
+}
+
+module.exports = { drawable, draw, createSVG, createSVGRoot, addCross };

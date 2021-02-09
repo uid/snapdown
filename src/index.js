@@ -124,7 +124,8 @@ function pathfindCombineDraw(id, jsonElement, graphsAfterLayout) {
   combined.id = id;
 
   if (showPathfinding) {
-    paths.forEach((path) => {
+    paths.forEach((pathInfo) => {
+      let { path, crossed } = pathInfo;
       let arrow = renderer.createSVG("path", `snap-arrow-${styleId}`);
       let desc = [];
       for (let i = 0; i < path.length; i++) {
@@ -136,6 +137,9 @@ function pathfindCombineDraw(id, jsonElement, graphsAfterLayout) {
       }
       arrow.setAttribute("d", desc.join(" "));
       combined.append(arrow);
+      if (crossed) {
+        renderer.addCross(combined, arrow);
+      }
     });
   }
 
