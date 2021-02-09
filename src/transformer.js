@@ -49,16 +49,17 @@ function transform(spec) {
   unclaimed = {};
   ptrCounter = 0;
 
-  let heapElts = (spec.heap || []).map((x) =>
-    Object.assign({}, x, { id: identify(x) })
-  );
   let stackElts = (spec.stack || []).map((x) =>
     Object.assign({}, x, { id: identify(x) })
   );
+  let heapElts = spec.heap;
 
   let transformed = {
-    heap: transformHeap(heapElts, stackElts),
     stack: transformHeap(stackElts, heapElts),
+    heap: transformHeap(
+      (spec.heap || []).map((x) => Object.assign({}, x, { id: identify(x) })),
+      stackElts
+    ),
   };
 
   // move all non-funcs from stack to heap

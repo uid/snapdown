@@ -208,13 +208,6 @@ function incorporate(e, graph, showHashRefs = false, includeEdges = true) {
       });
     }
 
-    if (stackPointedObjects.includes(e.id)) {
-      // TODO: why does this have no effect?
-      Object.assign(obj.layoutOptions, {
-        "elk.position": `(0, 0)`,
-      });
-    }
-
     graph.children.push(obj);
     obj.fields.forEach((f, i) => {
       // assign default position to each field
@@ -331,20 +324,6 @@ function draw(nearby, graph, id) {
   graph.children.forEach(drawAtom.bind(null, root, styleId));
   document.body.removeChild(metrics);
 
-  // rescale svg as necessary
-  root.setAttribute(
-    "viewBox",
-    `0 0 ${root.getAttribute("width")} ${root.getAttribute("height")}`
-  );
-  ["width", "height"].map((x) => {
-    root.setAttribute(
-      x,
-      (parseInt(root.getAttribute(x)) *
-        parseInt(nearby.getAttribute("percentSize"))) /
-        100
-    );
-  });
-
   return root;
 }
 
@@ -376,6 +355,17 @@ function drawAtom(parent, styleId, atom) {
 
   atom.labels && atom.labels.forEach(drawLabel.bind(null, group, atom));
   atom.children && atom.children.forEach(drawAtom.bind(null, group, styleId));
+
+  let sources = {};
+  for (let edge of atom.edges || []) {
+    if (edge.source in sources) {
+      edge.isHyperedge = sources[edge.source].isHyperedge;
+      sources[edge.source].isHyperedge.count += 1;
+    } else {
+      edge.isHyperedge = { count: 1 };
+      sources[edge.source] = edge;
+    }
+  }
   atom.edges && atom.edges.forEach(drawEdge.bind(null, group, styleId));
 
   if (atom.children && atom.children.length) {
@@ -493,10 +483,14 @@ function drawEdge(parent, styleId, edge) {
             desc.push(`C ${nextThree.join(" ")}`);
             i += 3;
           } else if (pointsLeft > 2) {
-            let nextTwo = [0, 1].map(
-              (j) => `${bendPoints[i + j].x} ${bendPoints[i + j].y}`
-            );
-            desc.push(`Q ${nextTwo.join(" ")}`);
+            if (edge.isHyperedge && edge.isHyperedge.count > 2) {
+              desc.push(`L ${bendPoints[i + 1].x} ${bendPoints[i + 1].y}`);
+            } else {
+              let nextTwo = [0, 1].map(
+                (j) => `${bendPoints[i + j].x} ${bendPoints[i + j].y}`
+              );
+              desc.push(`Q ${nextTwo.join(" ")}`);
+            }
             i += 2;
           } else {
             desc.push(`L ${bendPoints[i].x} ${bendPoints[i].y}`);

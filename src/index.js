@@ -139,6 +139,20 @@ function pathfindCombineDraw(id, jsonElement, graphsAfterLayout) {
     });
   }
 
+  // rescale svg as necessary
+  combined.setAttribute(
+    "viewBox",
+    `0 0 ${combined.getAttribute("width")} ${combined.getAttribute("height")}`
+  );
+  ["width", "height"].map((x) => {
+    combined.setAttribute(
+      x,
+      (parseInt(combined.getAttribute(x)) *
+        parseInt(jsonElement.getAttribute("percentSize"))) /
+        100
+    );
+  });
+
   return combined;
 }
 
