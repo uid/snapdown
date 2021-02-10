@@ -19,12 +19,13 @@ let redrawDiagram = () => {
   elt.type = "application/snapdown";
   elt.innerHTML = input;
   let oldChildren = Array.from(diagram.childNodes);
-  diagram.replaceChildren(elt);
+  replaceChildren(diagram, [elt]);
+
   try {
     Snapdown.render(elt);
     document.getElementById('error').innerHTML = "";
   } catch (e) {
-    diagram.replaceChildren(...oldChildren);
+    replaceChildren(diagram, oldChildren);
     for (let child of oldChildren) {
       if (child.id.includes("svg")) {
         child.style.opacity = "0.5";
@@ -32,6 +33,13 @@ let redrawDiagram = () => {
     }
     document.getElementById('error').innerHTML = "Unable to parse Snapdown input.";
   }
+}
+
+function replaceChildren(elt, children) {
+  while (elt.firstChild) {
+    elt.removeChild(elt.firstChild);
+  }
+  children.forEach(child => elt.appendChild(child));
 }
 
 function snapdownTextboxOnChange() {
