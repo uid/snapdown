@@ -296,9 +296,11 @@ function showExample(id) {
   let contentStates = ["none", "block"];
   let curDisplay = contentElem.style.display;
 
-  const googleFormUrl = `https://docs.google.com/forms/d/e/1FAIpQLScI8DPu2A-QH-djXcl1_GMfk1R1E7ioYfzFWgri74UyR5CH2A/formResponse?usp=pp_url&entry.632602489=${encodeURIComponent(
+  // curDisplay = none means a section has been opened
+  // curDisplay = block means a section has been closed
+  const googleFormUrl = `https://docs.google.com/forms/d/e/1FAIpQLScrnC_kfr9p8-ePZ2im9Ok62WbjMZEpILP_mzRyEQMv-qnYSA/formResponse?usp=pp_url&entry.1879725271=${encodeURIComponent(
     randomId
-  )}&entry.382138263=${id}-${curDisplay}&submit=Submit`;
+  )}&entry.1376962994=${id}-${curDisplay}&submit=Submit`;
 
   try {
     fetch(googleFormUrl, {

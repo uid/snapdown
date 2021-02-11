@@ -31,6 +31,14 @@ const examples = {
                   a drawing tool that can get us any representation we wish.)",
     percentSize: "80",
   },
+  mapfields: {
+    name: "Map fields",
+    snapdown:
+      's -> (String "value")\nm -> (\nHashMap\n(String "key") = s\n)\nm2 -> (\nHashMap\n(String "otherKey") = s\n)',
+    explanation:
+      "In this example, we have two maps, each with a single key, and both with the same single value.",
+    percentSize: "80",
+  },
   immutable: {
     name: "Immutability",
     snapdown: "a => (\nMyClass\nb -> ((MyImmutableClass))\n)",
@@ -56,6 +64,15 @@ const examples = {
                   the <tt>#sem</tt> name is never actually drawn in the diagram, but we can use it \
                   inside the two <tt>Course</tt> objects to avoid deeper nesting, and to avoid repeating \
                   the same <tt>Semester</tt> object twice.",
+    percentSize: "70",
+  },
+  reassignments: {
+    name: "Reassignments",
+    snapdown:
+      "a -x> (\nMyClass\nb -x> ((MyImmutableClass))\n)\na -> 5\nb => (MyOtherClass)",
+    explanation:
+      "Use an <tt>x</tt> in the middle of an arrow to indicate that an arrow should be crossed out. \
+                  Arrows are typically crossed out to indicate reassignment.",
     percentSize: "70",
   },
   unnamed: {

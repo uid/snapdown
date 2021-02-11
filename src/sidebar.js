@@ -103,7 +103,7 @@ Snapdown is a language for <b>drawing</b> snapshot diagrams.
 <br />
 Click on the links below to see examples of Snapdown in action!
 <br />
-In each example, you'll see a snippet of <b>Snapdown syntax</b> and the <b>corresponding diagram</b> side-by-side.
+In each example, you'll see a snippet of Snapdown syntax and the corresponding diagram side-by-side.
 <br />
 <br />
 ${examplesHTML}
