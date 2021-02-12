@@ -11,13 +11,10 @@ const examples = {
   },
   objects: {
     name: "Objects",
-    snapdown:
-      'f -> (MyFloat 5.0)\ns -> (MyString "abc")\nc -> (MyColor `GREEN`)',
+    snapdown: 'f -> (MyFloat 5.0)\ns -> (MyString "abc")',
     explanation:
       'In this example, <tt>f</tt> points to a <tt>MyFloat</tt> object with the value <tt>5.0</tt>, \
-                  <tt>s</tt> points to a <tt>MyString</tt> object with the value <tt>"abc"</tt>, \
-                  and <tt>c</tt> points to a <tt>MyColor</tt> object with the value <tt>GREEN</tt>. \
-                  (Note the backticks `` used to obtain the "custom" value of <tt>GREEN</tt>.)',
+                  <tt>s</tt> points to a <tt>MyString</tt> object with the value <tt>"abc"</tt>.',
     percentSize: "80",
   },
   fields: {
@@ -27,9 +24,19 @@ const examples = {
     explanation:
       "Here we have a variable <tt>lst</tt> pointing to an <tt>ArrayList</tt> with three fields representing the elements, \
                   and a fourth field representing the length. \
-                  (Note that Java may not actually represent the list this way -- Snapdown is purely \
-                  a drawing tool that can get us any representation we wish.)",
+                  (Note that Java, or another programming language, may not actually represent the list this way -- \
+                  Snapdown is purely a drawing tool that can get us any representation we wish.)",
     percentSize: "80",
+  },
+  literals: {
+    name: "Literals",
+    snapdown:
+      "(\nMyLine\nstart -> `(10, 10)`\nend -> `(20, 20)`\nc -> (Color `GREEN`)\n)",
+    explanation:
+      "In this example, we have a <tt>MyLine</tt> with three fields. The <tt>start</tt> and <tt>end</tt> fields \
+                  are best expressed as pairs of numbers. We can use backticks `` to display the text \
+                  <tt>(10, 10)</tt> verbatim. We can represent the <tt>GREEN</tt> color in a similar fashion.",
+    percentSize: "100",
   },
   mapfields: {
     name: "Map fields",
