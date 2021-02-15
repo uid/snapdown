@@ -28,6 +28,14 @@ const examples = {
                   Snapdown is purely a drawing tool that can get us any representation we wish.)",
     percentSize: "80",
   },
+  stackframes: {
+    name: "Stack frames",
+    snapdown:
+      'main() {\ns -> (\nSemester\nseason -> (String "Fall")\n)\nseason2 -> season\n}\nt -> s',
+    explanation:
+      "This example shows a function <tt>main()</tt> with local variables <tt>s</tt> and <tt>season2</tt>.",
+    percentSize: "70",
+  },
   literals: {
     name: "Literals",
     snapdown:
@@ -80,14 +88,6 @@ const examples = {
     explanation:
       "Use an <tt>x</tt> in the middle of an arrow to indicate that an arrow should be crossed out. \
                   Arrows are typically crossed out to indicate reassignment.",
-    percentSize: "70",
-  },
-  unnamed: {
-    name: "Stack frames",
-    snapdown:
-      'main() {\ns -> (\nSemester\nseason -> ((String "Fall"))\n)\nseason2 -> season\n}\nt => s',
-    explanation:
-      "This example shows a function <tt>main()</tt> with local variables <tt>s</tt> and <tt>season2</tt>.",
     percentSize: "70",
   },
 };
