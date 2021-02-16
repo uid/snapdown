@@ -9,22 +9,19 @@
 </head>
 <body>
 <script type="application/snapdown">
-#0 -> "6.045"
-#1 -> "6.031"
-#2 -> "6.036"
-dropCourse6() {
-  iter -> (MyIterator list -> subjects, index -x> 0, index -x> 1, index -> 2)
-  subjects -> (
-    ArrayList<String>
-    0 -x> #0
-    0 -> #1
-    1 -x> #1
-    1 -> #2
-    2 -x> #2
-  )
-  subject -x> #0
-  subject -> #2
-}
+t -> ((string "a"))
+tarr -> (Array<string> 0 -> t)
+---
+s -> t
+arr -> tarr
+---
+#r -> ((string "ac"))
+s -x> t
+s -> #r
+---
+tarr -> (Array<string> 0 -> t, 1 -> ((string "d")))
+---
+arr -> 2
 </script>
 <script type="application/snapdown">
   #0 -> "6.045"

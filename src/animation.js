@@ -52,6 +52,7 @@ function replaceRefInDiagram(diffPart, diagram, snap, iter) {
         if (!fieldId[i] && newDiagram.heap[j].id == id[i]) {
           // independent: resolve by replacing heap element
           if (indep[i]) {
+            diffPart.id = id[i];
             newDiagram.heap[j] = diffPart;
             resolved = true;
           }
@@ -67,6 +68,7 @@ function replaceRefInDiagram(diffPart, diagram, snap, iter) {
           let toDeleteFields = [];
           for (let k = 0; k < fields.length; k++) {
             if (indep[i]) {
+              diffPart.id = fields[k].id;
               fields[k] = diffPart;
               resolved = true;
             } else toDeleteFields.push(k);
@@ -92,13 +94,13 @@ function specToDiagrams(spec) {
   if (spec.length == 1) {
     return spec;
   }
-  let diagrams = [spec[0]];
   let curDiagram = $.extend(true, {}, spec[0]);
+  let curSnap = transformer.transform(curDiagram);
+  let diagrams = [curDiagram];
 
   // process each diff after initial state
   for (let i = 1; i < spec.length; i++) {
     let diff = spec[i].heap;
-    let curSnap = transformer.transform(curDiagram);
 
     // process each part of the diff
     for (let j = 0; j < diff.length; j++) {
@@ -111,6 +113,8 @@ function specToDiagrams(spec) {
         );
       }
     }
+
+    curSnap = transformer.transform(curDiagram);
     diagrams.push($.extend(true, {}, curDiagram));
   }
 
