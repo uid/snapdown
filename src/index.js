@@ -161,76 +161,90 @@ function pathfindCombineDraw(id, jsonElement, graphsAfterLayout) {
 }
 
 // layout and render Snapdown JSON
-function renderJSON(jsonElement, callback) {
-  if (!jsonElement.matches(jsonSelector)) {
-    throw new Error(
-      `Snapdown.renderJSON: expected input to be a ${jsonSelector}`
-    );
-  }
-  let snap = JSON.parse(jsonElement.text);
-  let graphs = renderer.drawable(snap);
-  let id = jsonElement.id + "-svg-" + randomString();
-
-  let graphsAfterLayout = [],
-    promises = [];
-  graphs.forEach((graph) => {
-    promises.push(
-      elk.instance.layout(graph).then((graph) => {
-        graphsAfterLayout.push(graph);
-      })
-    );
-  });
-
-  Promise.all(promises).then(() => {
-    let combined = pathfindCombineDraw(id, jsonElement, graphsAfterLayout);
-    if (callback) {
-      callback(combined);
+function renderJSON(jsonElement, id) {
+  return new Promise((resolve, reject) => {
+    if (!jsonElement.matches(jsonSelector)) {
+      throw new Error(
+        `Snapdown.renderJSON: expected input to be a ${jsonSelector}`
+      );
     }
-  });
+    let snap = JSON.parse(jsonElement.text);
+    let graphs = renderer.drawable(snap);
 
-  return id;
+    let graphsAfterLayout = [],
+      promises = [];
+    graphs.forEach((graph) => {
+      promises.push(
+        elk.instance.layout(graph).then((graph) => {
+          graphsAfterLayout.push(graph);
+        })
+      );
+    });
+
+    Promise.all(promises).then(() => {
+      let combined = pathfindCombineDraw(id, jsonElement, graphsAfterLayout);
+      resolve(combined);
+    });
+  });
 }
 
 function renderText(text, callback) {
   let elt = document.createElement("script");
   elt.type = "application/snapdown";
   let diagrams = parseText(elt);
+  let created = [],
+    promises = [],
+    graphs = [];
 
   for (let spec of diagrams) {
     let jsonElement = transformSpec(elt, spec);
     created.push(jsonElement.id);
-    created.push(
-      renderJSON(jsonElement, (combined) => {
-        if (callback) {
-          callback(combined);
-        }
+    let id = jsonElement.id + "-svg-" + randomString();
+    created.push(id);
+    promises.push(
+      renderJSON(jsonElement, id).then((graph) => {
+        graphs.push(graph);
       })
     );
   }
+
+  Promise.all(promises).then(() => {
+    if (callback) {
+      callback(graphs);
+    }
+  });
+
   return created;
 }
 
 function render(elt, callback) {
-  let created = [];
+  let created = [],
+    promises = [],
+    graphs = [];
+
   if (elt.matches(scriptSelector)) {
     let diagrams = parseText(elt);
 
     for (let spec of diagrams) {
       let jsonElement = transformSpec(elt, spec);
       created.push(jsonElement.id);
-      created.push(
-        renderJSON(jsonElement, (combined) => {
-          jsonElement.parentNode.insertBefore(
-            combined,
-            jsonElement.nextSibling
-          );
-          if (callback) {
-            callback(combined);
-          }
+      let id = jsonElement.id + "-svg-" + randomString();
+      created.push(id);
+      promises.push(
+        renderJSON(jsonElement, id).then((graph) => {
+          jsonElement.parentNode.insertBefore(graph, jsonElement.nextSibling);
+          graphs.push(graph);
         })
       );
     }
   }
+
+  Promise.all(promises).then(() => {
+    if (callback) {
+      callback(graphs);
+    }
+  });
+
   return created;
 }
 
@@ -238,26 +252,35 @@ function render(elt, callback) {
 // i.e., the JSON and SVG elements
 function renderAll(shouldThrow = true, callback) {
   let scriptElements = Array.from(document.querySelectorAll(scriptSelector));
-  let created = [];
+  let created = [],
+    promises = [],
+    graphs = [];
   scriptElements.map((x) => {
     try {
       let diagrams = parseText(x);
 
       for (let spec of diagrams) {
-        let y = transformSpec(x, spec);
-        created.push(y.id);
-        let graphId = renderJSON(y, (combined) => {
-          y.parentNode.insertBefore(combined, y.nextSibling);
-          if (callback) {
-            callback(combined);
-          }
-        });
-        created.push(graphId);
+        let jsonElement = transformSpec(x, spec);
+        created.push(jsonElement.id);
+        let id = jsonElement.id + "-svg-" + randomString();
+        created.push(id);
+        promises.push(
+          renderJSON(jsonElement, id).then((graph) => {
+            jsonElement.parentNode.insertBefore(graph, jsonElement.nextSibling);
+            graphs.push(graph);
+          })
+        );
       }
     } catch (err) {
       if (shouldThrow) {
         throw err;
       }
+    }
+  });
+
+  Promise.all(promises).then(() => {
+    if (callback) {
+      callback(graphs);
     }
   });
 
