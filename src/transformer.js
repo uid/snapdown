@@ -2,12 +2,16 @@
 
 const parser = require("../dist/snapdown-parser");
 
+let counter = 0;
 const identify = (function () {
-  let counter = 0;
   return function identify(e) {
     return e.id || (e.id = ++counter);
   };
 })();
+
+function incrementId() {
+  ++counter;
+}
 
 let claimed = {},
   unclaimed = {},
@@ -19,7 +23,7 @@ const identifyPtrSource = (function () {
 
     // does this pointer need "claiming", i.e. is it crossed-out or
     // intentionally specified to ignore name-binding?
-    let needsClaiming = e.crossed;
+    let needsClaiming = e.crossed || e.hyper;
     if (needsClaiming) {
       if (e.name.ref in claimed) return claimed[e.name.ref];
       else if (e.name.ref in unclaimed) return unclaimed[e.name.ref];
@@ -43,11 +47,14 @@ const identifyPtrSource = (function () {
   };
 })();
 
-function transform(spec) {
+function transform(spec, shouldClear = true) {
   // hack: each time this function is called, clear the globals...
-  claimed = {};
-  unclaimed = {};
-  ptrCounter = 0;
+  if (shouldClear) {
+    claimed = {};
+    unclaimed = {};
+    ptrCounter = 0;
+    counter = 0;
+  }
 
   let stackElts = (spec.stack || []).map((x) =>
     Object.assign({}, x, { id: identify(x) })
@@ -117,6 +124,7 @@ function flatten(e, ancestors) {
           return { name: {}, target: f };
         }
         if (f.val && !(f.object || f.array)) {
+          identify(f); // TODO wtf? this managed to fix inside-value animation
           return Object.assign({}, f, { inside: true });
         }
         return f;
@@ -178,8 +186,12 @@ function lookupRef(ref, ancestors, visited) {
   for (var match of matches) {
     let id = identify(match.target);
     // TODO other options for a pointer to this target
-    let independent = !match.crossed;
-    let options = { crossed: match.crossed, group: match.group };
+    let independent = !match.crossed && !match.hyper;
+    let options = {
+      crossed: match.crossed,
+      hyper: match.hyper,
+      group: match.group,
+    };
     if (match.target.ref && !visited.includes(id)) {
       // if this target hasn't been visited, keep going
       let result = lookupRef(match.target.ref, ancestors, [id, ...visited]);
@@ -213,4 +225,11 @@ function parse(text) {
   }
 }
 
-module.exports = { parse, transform, identifyPtrSource };
+module.exports = {
+  parse,
+  transform,
+  identify,
+  identifyPtrSource,
+  incrementId,
+  counter,
+};

@@ -465,7 +465,7 @@ function drawEdge(parent, styleId, edge) {
     edge.sections
       .map((s) => {
         let desc = [`M ${s.startPoint.x} ${s.startPoint.y}`];
-        let bendPoints = s.bendPoints || [];
+        let bendPoints = Array.from(s.bendPoints || []);
         bendPoints.push(s.endPoint);
         for (let i = 0; i < bendPoints.length; ) {
           let pointsLeft = bendPoints.length - i;
@@ -476,14 +476,10 @@ function drawEdge(parent, styleId, edge) {
             desc.push(`C ${nextThree.join(" ")}`);
             i += 3;
           } else if (pointsLeft > 2) {
-            if (edge.isHyperedge && edge.isHyperedge.count > 2) {
-              desc.push(`L ${bendPoints[i + 1].x} ${bendPoints[i + 1].y}`);
-            } else {
-              let nextTwo = [0, 1].map(
-                (j) => `${bendPoints[i + j].x} ${bendPoints[i + j].y}`
-              );
-              desc.push(`Q ${nextTwo.join(" ")}`);
-            }
+            let nextTwo = [0, 1].map(
+              (j) => `${bendPoints[i + j].x} ${bendPoints[i + j].y}`
+            );
+            desc.push(`Q ${nextTwo.join(" ")}`);
             i += 2;
           } else {
             desc.push(`L ${bendPoints[i].x} ${bendPoints[i].y}`);

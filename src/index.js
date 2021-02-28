@@ -45,7 +45,12 @@ function parseText(scriptElement) {
   let text = script.__content;
   let spec = transformer.parse(text);
 
-  return animation.specToDiagrams(spec);
+  let master = animation.specToDiagrams(spec, true);
+
+  return {
+    master: master[master.length - 1],
+    individual: animation.specToDiagrams(spec, false),
+  };
 }
 
 // TODO lay out all diagrams (but don't render)
@@ -76,8 +81,6 @@ function transformSpec(scriptElement, spec) {
 
 // TODO: move to renderer?
 function pathfindCombineDraw(id, jsonElement, graphsAfterLayout) {
-  // console.log(graphsAfterLayout);
-
   let drawn = [];
   let paths = pathfinding.layoutRoughEdges(graphsAfterLayout);
 
@@ -161,7 +164,7 @@ function pathfindCombineDraw(id, jsonElement, graphsAfterLayout) {
 }
 
 // layout and render Snapdown JSON
-function renderJSON(jsonElement, id) {
+function renderJSON(jsonElement, id, master) {
   return new Promise((resolve, reject) => {
     if (!jsonElement.matches(jsonSelector)) {
       throw new Error(
@@ -171,50 +174,32 @@ function renderJSON(jsonElement, id) {
     let snap = JSON.parse(jsonElement.text);
     let graphs = renderer.drawable(snap);
 
-    let graphsAfterLayout = [],
-      promises = [];
-    graphs.forEach((graph) => {
-      promises.push(
-        elk.instance.layout(graph).then((graph) => {
-          graphsAfterLayout.push(graph);
-        })
-      );
-    });
+    if (!master) {
+      let graphsAfterLayout = [],
+        promises = [];
+      graphs.forEach((graph) => {
+        promises.push(
+          elk.instance.layout(graph).then((graph) => {
+            graphsAfterLayout.push(graph);
+          })
+        );
+      });
 
-    Promise.all(promises).then(() => {
-      let combined = pathfindCombineDraw(id, jsonElement, graphsAfterLayout);
-      resolve(combined);
-    });
-  });
-}
+      Promise.all(promises).then(() => {
+        resolve({ combined: null, graphsAfterLayout });
+      });
+    } else {
+      // just do stuff with graphs and master
+      let newMaster = master.map((x) => {
+        return $.extend(true, {}, x);
+      });
+      newMaster[0] = animation.modifyMaster(newMaster[0], graphs[0]);
 
-function renderText(text, callback) {
-  let elt = document.createElement("script");
-  elt.type = "application/snapdown";
-  let diagrams = parseText(elt);
-  let created = [],
-    promises = [],
-    graphs = [];
-
-  for (let spec of diagrams) {
-    let jsonElement = transformSpec(elt, spec);
-    created.push(jsonElement.id);
-    let id = jsonElement.id + "-svg-" + randomString();
-    created.push(id);
-    promises.push(
-      renderJSON(jsonElement, id).then((graph) => {
-        graphs.push(graph);
-      })
-    );
-  }
-
-  Promise.all(promises).then(() => {
-    if (callback) {
-      callback(graphs);
+      // edit master to reflect stuff in graphs
+      let combined = pathfindCombineDraw(id, jsonElement, newMaster);
+      resolve({ combined, graphsAfterLayout: newMaster });
     }
   });
-
-  return created;
 }
 
 function render(elt, callback) {
@@ -223,9 +208,9 @@ function render(elt, callback) {
     graphs = [];
 
   if (elt.matches(scriptSelector)) {
-    let diagrams = parseText(elt);
+    let { individual, master } = parseText(elt);
 
-    for (let spec of diagrams) {
+    for (let spec of individual) {
       let jsonElement = transformSpec(elt, spec);
       created.push(jsonElement.id);
       let id = jsonElement.id + "-svg-" + randomString();
@@ -257,20 +242,34 @@ function renderAll(shouldThrow = true, callback) {
     graphs = [];
   scriptElements.map((x) => {
     try {
-      let diagrams = parseText(x);
+      let { individual, master } = parseText(x);
 
-      for (let spec of diagrams) {
-        let jsonElement = transformSpec(x, spec);
-        created.push(jsonElement.id);
-        let id = jsonElement.id + "-svg-" + randomString();
-        created.push(id);
-        promises.push(
-          renderJSON(jsonElement, id).then((graph) => {
-            jsonElement.parentNode.insertBefore(graph, jsonElement.nextSibling);
-            graphs.push(graph);
+      let masterJson = transformSpec(x, master);
+      created.push(masterJson.id);
+      let id = masterJson.id + "-svg-" + randomString();
+      created.push(id);
+      promises.push(
+        renderJSON(masterJson, id)
+          .then((value) => {
+            let { combined, graphsAfterLayout } = value;
+            return Promise.all(
+              individual.map((spec) => {
+                let jsonElement = transformSpec(x, spec);
+                return renderJSON(jsonElement, id, graphsAfterLayout);
+              })
+            );
           })
-        );
-      }
+          .then((results) => {
+            results.forEach((result) => {
+              let { combined } = result;
+              masterJson.parentNode.insertBefore(
+                combined,
+                masterJson.nextSibling
+              );
+              graphs.push(combined);
+            });
+          })
+      );
     } catch (err) {
       if (shouldThrow) {
         throw err;
@@ -339,7 +338,6 @@ function showExample(id) {
 }
 
 module.exports = {
-  renderText,
   render,
   renderAll,
   populateHelp,

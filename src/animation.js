@@ -3,7 +3,7 @@
 const transformer = require("./transformer");
 const $ = require("jquery");
 
-function replaceRefInDiagram(diffPart, diagram, snap, iter) {
+function replaceRefInDiagram(diffPart, diagram, snap, iter, grow = false) {
   let newDiagram = $.extend(true, {}, diagram);
   let newSnap = $.extend(true, {}, snap);
   diffPart.usedIter = iter;
@@ -43,17 +43,25 @@ function replaceRefInDiagram(diffPart, diagram, snap, iter) {
     }
   }
 
+  if (grow) diffPart.hyper = true;
+
   if (id.length) {
     // field already exists in diagram, remove all instances & replace
     let resolved = false;
     for (let i = 0; i < id.length; i++) {
       let toDeleteElems = [];
+      let shouldPush = false;
       for (let j = 0; j < newDiagram.heap.length; j++) {
         if (!fieldId[i] && newDiagram.heap[j].id == id[i]) {
           // independent: resolve by replacing heap element
           if (indep[i]) {
-            diffPart.id = id[i];
-            newDiagram.heap[j] = diffPart;
+            if (!grow) {
+              diffPart.id = id[i];
+              newDiagram.heap[j] = diffPart;
+              transformer.incrementId();
+            } else {
+              shouldPush = true;
+            }
             resolved = true;
           }
           // not independent: delete heap element
@@ -66,31 +74,45 @@ function replaceRefInDiagram(diffPart, diagram, snap, iter) {
         ) {
           let fields = newDiagram.heap[j].target.fields;
           let toDeleteFields = [];
+          let shouldPushField = false;
           for (let k = 0; k < fields.length; k++) {
             if (indep[i]) {
-              diffPart.id = fields[k].id;
-              fields[k] = diffPart;
+              if (!grow) {
+                diffPart.id = fields[k].id;
+                fields[k] = diffPart;
+                transformer.incrementId();
+              } else {
+                shouldPushField = true;
+              }
               resolved = true;
             } else toDeleteFields.push(k);
           }
-          for (let f of toDeleteFields) fields.splice(f, 1);
+          if (shouldPushField) {
+            fields.push(diffPart);
+          }
+          toDeleteFields.reverse();
+          if (!grow) for (let f of toDeleteFields) fields.splice(f, 1);
         }
       }
-      for (let e of toDeleteElems) newDiagram.heap.splice(e, 1);
+      if (shouldPush) {
+        newDiagram.heap.push($.extend(true, {}, diffPart));
+      }
+      toDeleteElems.reverse();
+      if (!grow) for (let e of toDeleteElems) newDiagram.heap.splice(e, 1);
     }
     // if still unresolved, just add the diff part
     if (!resolved) {
-      newDiagram.heap.push(diffPart);
+      newDiagram.heap.push($.extend(true, {}, diffPart));
     }
   } else {
     // easiest case: ref hasn't been defined yet
-    newDiagram.heap.push(diffPart);
+    newDiagram.heap.push($.extend(true, {}, diffPart));
   }
 
   return [newDiagram, newSnap];
 }
 
-function specToDiagrams(spec) {
+function specToDiagrams(spec, grow = false) {
   if (spec.length == 1) {
     return spec;
   }
@@ -109,16 +131,91 @@ function specToDiagrams(spec) {
           diff[j],
           curDiagram,
           curSnap,
-          i
+          i,
+          grow
         );
       }
     }
 
-    curSnap = transformer.transform(curDiagram);
+    curSnap = transformer.transform(curDiagram, false);
     diagrams.push($.extend(true, {}, curDiagram));
   }
+
+  console.log("DIAGRAMS");
+  console.log(diagrams);
 
   return diagrams;
 }
 
-module.exports = { specToDiagrams };
+function modifyMaster(master, graphs) {
+  master = $.extend(true, {}, master);
+
+  function getIds(graph) {
+    let children = graph.children || [];
+    let edges = graph.edges || [];
+
+    let childIds = [],
+      edgeIds = [];
+
+    if (children.length) {
+      for (let child of children) {
+        let ids = getIds(child);
+        edgeIds = [...edgeIds, ...ids.edgeIds];
+        childIds = [...childIds, child.id, ...ids.childIds];
+      }
+    }
+    if (edges.length) {
+      for (let edge of edges) {
+        // TODO: better way to encode edge ID / source / target?
+        edgeIds = [
+          ...edgeIds,
+          `${edge.id}-${edge.sources[0]}-${edge.targets[0]}`,
+        ];
+      }
+    }
+
+    return { childIds, edgeIds };
+  }
+
+  function removeNonIds(graph, ids) {
+    let children = graph.children || [];
+    let edges = graph.edges || [];
+
+    let { childIds, edgeIds } = ids;
+
+    let childrenToRemove = [],
+      edgesToRemove = [];
+    for (let i = 0; i < children.length; i++) {
+      if (!childIds.includes(children[i].id)) {
+        childrenToRemove.push(i);
+      } else {
+        removeNonIds(children[i], ids);
+      }
+    }
+    for (let i = childrenToRemove.length - 1; i >= 0; i--) {
+      children.splice(childrenToRemove[i], 1);
+    }
+
+    for (let i = 0; i < edges.length; i++) {
+      // TODO
+      if (
+        !edgeIds.includes(
+          `${edges[i].id}-${edges[i].sources[0]}-${edges[i].targets[0]}`
+        )
+      ) {
+        edgesToRemove.push(i);
+      }
+    }
+    for (let i = edgesToRemove.length - 1; i >= 0; i--) {
+      edges.splice(edgesToRemove[i], 1);
+    }
+  }
+
+  let ids = getIds(graphs);
+  console.log(ids);
+  removeNonIds(master, ids);
+
+  return master;
+}
+
+module.exports = { specToDiagrams, modifyMaster };
