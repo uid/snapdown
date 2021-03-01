@@ -165,6 +165,39 @@ function pathfindCombineDraw(id, jsonElement, graphsAfterLayout) {
   return combined;
 }
 
+function displayDiagrams(results, masterJson, graphs) {
+  let thisEltDiagrams = [];
+  results.forEach((result) => {
+    let { combined } = result;
+    combined.style.display = "none";
+    masterJson.parentNode.insertBefore(combined, masterJson.nextSibling);
+    graphs.push(combined);
+    thisEltDiagrams.push(combined);
+  });
+
+  if (results.length > 1) {
+    let br = document.createElement("br");
+    br.id = `br${randomString()}`;
+    masterJson.parentNode.insertBefore(br, masterJson.nextSibling);
+    graphs.push(br);
+    for (let i = 0; i < results.length; i++) {
+      let button = document.createElement("button");
+      button.innerHTML = `Step ${i}`;
+      button.onclick = function () {
+        thisEltDiagrams.forEach((diagram) => {
+          diagram.style.display = "none";
+        });
+        thisEltDiagrams[i].style.display = "block";
+      };
+      button.id = `btn${i}`;
+      masterJson.parentNode.insertBefore(button, masterJson.nextSibling);
+      graphs.push(button);
+    }
+  }
+
+  thisEltDiagrams[0].style.display = "block";
+}
+
 // layout and render Snapdown JSON
 function renderJSON(jsonElement, id, master) {
   return new Promise((resolve, reject) => {
@@ -216,6 +249,7 @@ function render(elt, callback) {
     created.push(masterJson.id);
     let id = masterJson.id + "-svg-" + randomString();
     created.push(id);
+    graphs.push(masterJson);
     promises.push(
       renderJSON(masterJson, id)
         .then((value) => {
@@ -223,24 +257,21 @@ function render(elt, callback) {
           return Promise.all(
             individual.map((spec) => {
               let jsonElement = transformSpec(elt, spec);
-              return renderJSON(jsonElement, id, graphsAfterLayout);
+              graphs.push(jsonElement);
+              return renderJSON(
+                jsonElement,
+                id + randomString(),
+                graphsAfterLayout
+              );
             })
           );
         })
-        .then((results) => {
-          results.forEach((result) => {
-            let { combined } = result;
-            masterJson.parentNode.insertBefore(
-              combined,
-              masterJson.nextSibling
-            );
-            graphs.push(combined);
-          });
-        })
+        .then((results) => displayDiagrams(results, masterJson, graphs))
     );
   }
 
   Promise.all(promises).then(() => {
+    console.log("HI");
     if (callback) {
       callback(graphs);
     }
@@ -271,20 +302,15 @@ function renderAll(shouldThrow = true, callback) {
             return Promise.all(
               individual.map((spec) => {
                 let jsonElement = transformSpec(x, spec);
-                return renderJSON(jsonElement, id, graphsAfterLayout);
+                return renderJSON(
+                  jsonElement,
+                  id + randomString(),
+                  graphsAfterLayout
+                );
               })
             );
           })
-          .then((results) => {
-            results.forEach((result) => {
-              let { combined } = result;
-              masterJson.parentNode.insertBefore(
-                combined,
-                masterJson.nextSibling
-              );
-              graphs.push(combined);
-            });
-          })
+          .then((results) => displayDiagrams(results, masterJson, graphs))
       );
     } catch (err) {
       if (shouldThrow) {
@@ -294,6 +320,7 @@ function renderAll(shouldThrow = true, callback) {
   });
 
   Promise.all(promises).then(() => {
+    console.log("HI");
     if (callback) {
       callback(graphs);
     }

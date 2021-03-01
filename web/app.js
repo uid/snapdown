@@ -106,15 +106,16 @@ class App extends React.Component {
 
     try {
       for (var x of toRemove) x.remove();
-      created[id] = Snapdown.render(scriptElement, () =>
-        this.setState({ rendered: true })
-      );
+      Snapdown.render(scriptElement, (graphs) => {
+        created[id] = graphs.map((x) => x.id);
+        this.setState({ rendered: true, created: created });
+      });
       error[id] = false;
-      this.setState({ error: error, created: created });
+      this.setState({ error: error });
     } catch (err) {
       console.log(err);
       error[id] = true;
-      this.setState({ error: error, created: created });
+      this.setState({ error: error });
     }
   }
 

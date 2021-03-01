@@ -99,7 +99,8 @@ function flatten(e, ancestors) {
   // pointer: lookup reference or flatten inline target
   if (e.name) {
     if (e.erased) {
-      e.target.erased = true;
+      // TODO: do we want this?
+      // e.target.erased = true;
     }
 
     if (e.target.ref) {

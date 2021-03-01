@@ -222,6 +222,19 @@ text2 -> ((String "uoiea"))
 #3 -> 'z'
 #3 -x> #1
 </script>
+<script type="application/snapdown">
+nil -> ((Empty))
+---
+#2 -> ((Cons rest => nil elt => 2))
+---
+#1 -> ((Cons rest => #2 elt => 1))
+---
+#0 -> ((Cons rest => #1 elt => 0))
+---
+x -> #0
+---
+y -> ((Cons rest => #1 elt => 4))
+</script>
 
 <br />
 
