@@ -153,18 +153,24 @@ function incorporate(e, graph, showHashRefs = false, includeEdges = true) {
 
     graph.children.push(ptr);
 
-    for (var to of ptr.target.to) {
-      let edge = Object.assign(
-        { id: makeID("edge"), sources: [ptr.source], targets: [to.id] },
-        e
-      );
-      if (includeEdges) {
-        graph.edges.push(Object.assign(edge, to.options));
-      } else {
-        // TODO: edges directly from the stack to an object don't necessarily need to be rough?
-        graph.roughEdges.push(Object.assign(edge, to.options));
+    if (!e.erased) {
+      for (var to of ptr.target.to) {
+        let edge = Object.assign(
+          { id: makeID("edge"), sources: [ptr.source], targets: [to.id] },
+          e
+        );
+        if (includeEdges) {
+          graph.edges.push(Object.assign(edge, to.options));
+        } else {
+          // TODO: edges directly from the stack to an object don't necessarily need to be rough?
+          graph.roughEdges.push(Object.assign(edge, to.options));
+        }
       }
     }
+    return;
+  }
+
+  if (e.erased) {
     return;
   }
 

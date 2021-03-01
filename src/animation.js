@@ -56,9 +56,12 @@ function replaceRefInDiagram(diffPart, diagram, snap, iter, grow = false) {
           // independent: resolve by replacing heap element
           if (indep[i]) {
             if (!grow) {
-              diffPart.id = id[i];
-              newDiagram.heap[j] = diffPart;
-              transformer.incrementId();
+              diffPart.hyper = true;
+              shouldPush = true;
+              newDiagram.heap[j].erased = true;
+              // diffPart.id = id[i];
+              // newDiagram.heap[j] = diffPart;
+              // transformer.incrementId();
             } else {
               shouldPush = true;
             }
@@ -78,9 +81,12 @@ function replaceRefInDiagram(diffPart, diagram, snap, iter, grow = false) {
           for (let k = 0; k < fields.length; k++) {
             if (indep[i]) {
               if (!grow) {
-                diffPart.id = fields[k].id;
-                fields[k] = diffPart;
-                transformer.incrementId();
+                diffPart.hyper = true;
+                shouldPushField = true;
+                fields[k].erased = true;
+                // diffPart.id = fields[k].id;
+                // fields[k] = diffPart;
+                // transformer.incrementId();
               } else {
                 shouldPushField = true;
               }
@@ -91,14 +97,14 @@ function replaceRefInDiagram(diffPart, diagram, snap, iter, grow = false) {
             fields.push(diffPart);
           }
           toDeleteFields.reverse();
-          if (!grow) for (let f of toDeleteFields) fields.splice(f, 1);
+          if (!grow) for (let f of toDeleteFields) fields[f].erased = true;
         }
       }
       if (shouldPush) {
         newDiagram.heap.push($.extend(true, {}, diffPart));
       }
       toDeleteElems.reverse();
-      if (!grow) for (let e of toDeleteElems) newDiagram.heap.splice(e, 1);
+      if (!grow) for (let e of toDeleteElems) newDiagram.heap[e].erased = true;
     }
     // if still unresolved, just add the diff part
     if (!resolved) {
@@ -141,9 +147,6 @@ function specToDiagrams(spec, grow = false) {
     diagrams.push($.extend(true, {}, curDiagram));
   }
 
-  console.log("DIAGRAMS");
-  console.log(diagrams);
-
   return diagrams;
 }
 
@@ -166,10 +169,15 @@ function modifyMaster(master, graphs) {
     }
     if (edges.length) {
       for (let edge of edges) {
+        if (edge.erased) {
+          continue;
+        }
         // TODO: better way to encode edge ID / source / target?
         edgeIds = [
           ...edgeIds,
-          `${edge.id}-${edge.sources[0]}-${edge.targets[0]}`,
+          `${edge.id}-${edge.sources[0]}-${edge.targets[0]}-${Boolean(
+            edge.crossed
+          )}`,
         ];
       }
     }
@@ -200,7 +208,9 @@ function modifyMaster(master, graphs) {
       // TODO
       if (
         !edgeIds.includes(
-          `${edges[i].id}-${edges[i].sources[0]}-${edges[i].targets[0]}`
+          `${edges[i].id}-${edges[i].sources[0]}-${
+            edges[i].targets[0]
+          }-${Boolean(edges[i].crossed)}`
         )
       ) {
         edgesToRemove.push(i);
@@ -212,7 +222,6 @@ function modifyMaster(master, graphs) {
   }
 
   let ids = getIds(graphs);
-  console.log(ids);
   removeNonIds(master, ids);
 
   return master;

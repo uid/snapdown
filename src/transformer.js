@@ -98,6 +98,10 @@ function flattenAll(arr, ancestors) {
 function flatten(e, ancestors) {
   // pointer: lookup reference or flatten inline target
   if (e.name) {
+    if (e.erased) {
+      e.target.erased = true;
+    }
+
     if (e.target.ref) {
       return [
         Object.assign({}, e, {
@@ -191,6 +195,7 @@ function lookupRef(ref, ancestors, visited) {
       crossed: match.crossed,
       hyper: match.hyper,
       group: match.group,
+      erased: match.erased,
     };
     if (match.target.ref && !visited.includes(id)) {
       // if this target hasn't been visited, keep going

@@ -12,6 +12,8 @@ const animation = require("./animation");
 const scriptSelector = 'script[type="application/snapdown"]';
 const jsonSelector = 'script[type="application/snapdown+json"]';
 
+const $ = require("jquery");
+
 let randomId = "Unknown";
 
 let showPathfinding = true;
@@ -210,18 +212,32 @@ function render(elt, callback) {
   if (elt.matches(scriptSelector)) {
     let { individual, master } = parseText(elt);
 
-    for (let spec of individual) {
-      let jsonElement = transformSpec(elt, spec);
-      created.push(jsonElement.id);
-      let id = jsonElement.id + "-svg-" + randomString();
-      created.push(id);
-      promises.push(
-        renderJSON(jsonElement, id).then((graph) => {
-          jsonElement.parentNode.insertBefore(graph, jsonElement.nextSibling);
-          graphs.push(graph);
+    let masterJson = transformSpec(elt, master);
+    created.push(masterJson.id);
+    let id = masterJson.id + "-svg-" + randomString();
+    created.push(id);
+    promises.push(
+      renderJSON(masterJson, id)
+        .then((value) => {
+          let { combined, graphsAfterLayout } = value;
+          return Promise.all(
+            individual.map((spec) => {
+              let jsonElement = transformSpec(elt, spec);
+              return renderJSON(jsonElement, id, graphsAfterLayout);
+            })
+          );
         })
-      );
-    }
+        .then((results) => {
+          results.forEach((result) => {
+            let { combined } = result;
+            masterJson.parentNode.insertBefore(
+              combined,
+              masterJson.nextSibling
+            );
+            graphs.push(combined);
+          });
+        })
+    );
   }
 
   Promise.all(promises).then(() => {
