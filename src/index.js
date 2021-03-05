@@ -271,7 +271,6 @@ function render(elt, callback) {
   }
 
   Promise.all(promises).then(() => {
-    console.log("HI");
     if (callback) {
       callback(graphs);
     }
@@ -320,7 +319,6 @@ function renderAll(shouldThrow = true, callback) {
   });
 
   Promise.all(promises).then(() => {
-    console.log("HI");
     if (callback) {
       callback(graphs);
     }

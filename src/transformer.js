@@ -1,6 +1,7 @@
 "use strict";
 
 const parser = require("../dist/snapdown-parser");
+const $ = require("jquery");
 
 let counter = 0;
 const identify = (function () {
@@ -103,11 +104,41 @@ function flatten(e, ancestors) {
       // e.target.erased = true;
     }
 
-    if (e.target.ref) {
+    // already have a target ID for this
+    if (e.target.to) {
       return [
         Object.assign({}, e, {
           source: identifyPtrSource(e),
-          target: { to: lookupRef(e.target.ref, ancestors, []).ids },
+          target: { to: e.target.to },
+        }),
+      ];
+    }
+
+    if (e.target.ref) {
+      let lookupIds = lookupRef(e.target.ref, ancestors, []).ids;
+      let filteredIds = lookupIds;
+
+      if (!e.target.ref.startsWith("#")) {
+        let filteredIds = lookupIds.filter(
+          (x) => !x.options.crossed && !x.options.erased
+        );
+        if (!filteredIds.length && lookupIds.length) {
+          filteredIds = lookupIds.filter((x) => !x.options.erased);
+        }
+        if (!filteredIds.length && lookupIds.length) {
+          filteredIds = lookupIds;
+        }
+        filteredIds = [filteredIds[0]];
+        delete filteredIds[0].options.crossed;
+        delete filteredIds[0].options.erased;
+
+        e.target.to = filteredIds;
+      }
+
+      return [
+        Object.assign({}, e, {
+          source: identifyPtrSource(e),
+          target: { to: filteredIds },
         }),
       ];
     }
@@ -202,13 +233,13 @@ function lookupRef(ref, ancestors, visited) {
       // if this target hasn't been visited, keep going
       let result = lookupRef(match.target.ref, ancestors, [id, ...visited]);
       if (result.loop) giveUpIds = result.ids;
-      else if (!ids.length || !independent) {
+      else {
         ids.push(...result.ids.map((elt) => Object.assign(elt, { options })));
       }
     } else if (visited.includes(id)) {
       // if we're caught in a "cycle", set the "give-up IDs"
       giveUpIds = [{ id: identify(match), options }];
-    } else if (!ids.length || !independent) {
+    } else {
       ids.push({ id, options });
     }
   }

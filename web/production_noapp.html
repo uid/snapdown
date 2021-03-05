@@ -235,6 +235,23 @@ x -> #0
 ---
 y -> ((Cons rest => #1 elt => 4))
 </script>
+<script type="application/snapdown">
+#1 -> 1
+a -> #1
+b -> a
+---
+a -x> #1
+a -> 2
+</script>
+
+<script type="application/snapdown">
+#a -> "a"
+#1 -> #a
+a -> (A b -> #1)
+---
+#1 -x> #a
+#1 -> "b"
+</script>
 
 <br />
 

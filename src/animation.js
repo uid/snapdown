@@ -59,9 +59,6 @@ function replaceRefInDiagram(diffPart, diagram, snap, iter, grow = false) {
               diffPart.hyper = true;
               shouldPush = true;
               newDiagram.heap[j].erased = true;
-              // diffPart.id = id[i];
-              // newDiagram.heap[j] = diffPart;
-              // transformer.incrementId();
             } else {
               shouldPush = true;
             }
@@ -84,9 +81,6 @@ function replaceRefInDiagram(diffPart, diagram, snap, iter, grow = false) {
                 diffPart.hyper = true;
                 shouldPushField = true;
                 fields[k].erased = true;
-                // diffPart.id = fields[k].id;
-                // fields[k] = diffPart;
-                // transformer.incrementId();
               } else {
                 shouldPushField = true;
               }
