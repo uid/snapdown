@@ -253,6 +253,22 @@ a -> (A b -> #1)
 #1 -> "b"
 </script>
 
+<script type="application/snapdown">
+t -> ((string "a"))
+tarr -> (Array<string> 0 -> t)
+---
+s -> t
+arr -> tarr
+---
+#r -> ((string "ac"))
+s -x> t
+s -> #r
+---
+arr add 1 -> ((string "d"))
+---
+arr -> 2
+</script>
+
 <br />
 
 <script>

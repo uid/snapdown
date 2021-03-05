@@ -10,6 +10,14 @@ function replaceRefInDiagram(diffPart, diagram, snap, iter, grow = false) {
 
   let ref = diffPart.name.ref;
 
+  // this might prove useful
+  let lookupIds = [];
+  try {
+    lookupIds = transformer
+      .lookupRef(ref, newDiagram.heap, [])
+      .ids.map((x) => x.id);
+  } catch (e) {}
+
   // these three arrays will always be the same length
   let id = [],
     fieldId = [],
@@ -52,7 +60,24 @@ function replaceRefInDiagram(diffPart, diagram, snap, iter, grow = false) {
       let toDeleteElems = [];
       let shouldPush = false;
       for (let j = 0; j < newDiagram.heap.length; j++) {
-        if (!fieldId[i] && newDiagram.heap[j].id == id[i]) {
+        // is of type "add"
+        if (
+          diffPart.add &&
+          newDiagram.heap[j].target &&
+          newDiagram.heap[j].target.fields &&
+          (lookupIds.includes(newDiagram.heap[j].id) ||
+            lookupIds.includes(newDiagram.heap[j].target.id))
+        ) {
+          let modifiedDiffPart = $.extend(true, {}, diffPart);
+          let fields = newDiagram.heap[j].target.fields;
+          modifiedDiffPart.name = modifiedDiffPart.fieldname;
+          fields.push(modifiedDiffPart);
+          resolved = true;
+        } else if (
+          !diffPart.add &&
+          !fieldId[i] &&
+          newDiagram.heap[j].id == id[i]
+        ) {
           // independent: resolve by replacing heap element
           if (indep[i]) {
             if (!grow) {
@@ -67,6 +92,7 @@ function replaceRefInDiagram(diffPart, diagram, snap, iter, grow = false) {
           // not independent: delete heap element
           else toDeleteElems.push(j);
         } else if (
+          diffPart.add &&
           fieldId[i] &&
           newDiagram.heap[j].target &&
           newDiagram.heap[j].target.fields &&

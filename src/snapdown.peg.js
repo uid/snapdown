@@ -33,8 +33,9 @@ def = pointer / value
 
 heap = $* vals:($* it:(pointer / value) { return it })+ { return { heap: vals } }
 
-pointer = name:lhs _? arrow:arrow _? target:rhs { return merge({ name, target }, arrow) }
+pointer = name:lhs _? add:fieldadd? _? arrow:arrow _? target:rhs { return merge({ name, target }, add, arrow) }
 lhs = blank / ref
+fieldadd = "add" _? fieldname:lhs { return { add: true, fieldname } }
 arrow = reassignable / final / crossed / finalcrossed
 reassignable = "-"+ ">" { return {} }
 final = "="+ ">" { return { immutable: true } }

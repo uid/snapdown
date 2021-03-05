@@ -267,6 +267,5 @@ module.exports = {
   transform,
   identify,
   identifyPtrSource,
-  incrementId,
-  counter,
+  lookupRef,
 };
