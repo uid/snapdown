@@ -310,6 +310,12 @@ function makeLabels(text) {
   return [{ text, width, height }];
 }
 
+function maxFuncWidth(graph) {
+  if (graph.func) return graph.width;
+  if (!graph.children || !graph.children.length) return 0;
+  return Math.max(...graph.children.map((x) => maxFuncWidth(x)));
+}
+
 function draw(nearby, graph, id) {
   let styleId;
   let root = createSVGRoot((x) => {
@@ -320,14 +326,22 @@ function draw(nearby, graph, id) {
   ["width", "height"].forEach((attr) => root.setAttribute(attr, graph[attr]));
 
   document.body.append(metrics);
-  graph.children.forEach(drawAtom.bind(null, root, styleId));
+
+  let frameWidth = maxFuncWidth(graph);
+  graph.children.forEach(drawAtom.bind(null, root, styleId, frameWidth));
   document.body.removeChild(metrics);
 
   return root;
 }
 
-function drawAtom(parent, styleId, atom) {
+function drawAtom(parent, styleId, frameWidth, atom) {
   let group = createSVG("g");
+
+  if (atom.func) {
+    atom.x = atom.x - (frameWidth - atom.width) / 2;
+    atom.width = frameWidth;
+  }
+
   group.setAttribute("transform", "translate(" + atom.x + "," + atom.y + ")");
 
   // objects, arrays, and functions
@@ -353,7 +367,8 @@ function drawAtom(parent, styleId, atom) {
   }
 
   atom.labels && atom.labels.forEach(drawLabel.bind(null, group, atom));
-  atom.children && atom.children.forEach(drawAtom.bind(null, group, styleId));
+  atom.children &&
+    atom.children.forEach(drawAtom.bind(null, group, styleId, frameWidth));
 
   let sources = {};
   for (let edge of atom.edges || []) {

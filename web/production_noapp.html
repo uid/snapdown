@@ -9,6 +9,11 @@
 </head>
 <body>
 <script type="application/snapdown">
+main() {
+  a -> 2
+}
+</script>
+<script type="application/snapdown">
 t -> ((string "a"))
 tarr -> (Array<string> 0 -> t)
 ---
@@ -19,9 +24,7 @@ arr -> tarr
 s -x> t
 s -> #r
 ---
-tarr -> (Array<string> 0 -> t, 1 -> ((string "d")))
----
-arr -> 2
+tarr add 1 -> ((string "d"))
 </script>
 <script type="application/snapdown">
   #0 -> "6.045"
@@ -267,6 +270,18 @@ s -> #r
 arr add 1 -> ((string "d"))
 ---
 arr -> 2
+</script>
+
+<script type="application/snapdown">
+#sam -> (Dog "Sam")
+a -> #sam
+---
+a -> (
+  list
+  0 -> #sam
+  1 -> (Dog "Fred")
+  2 -> (Dog "George")
+)
 </script>
 
 <br />

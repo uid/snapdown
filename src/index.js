@@ -167,10 +167,12 @@ function pathfindCombineDraw(id, jsonElement, graphsAfterLayout) {
 
 function displayDiagrams(results, masterJson, graphs) {
   let thisEltDiagrams = [];
+  let widths = [];
   results.forEach((result) => {
     let { combined } = result;
-    combined.style.display = "none";
     masterJson.parentNode.insertBefore(combined, masterJson.nextSibling);
+    widths.push(combined.getBBox().width);
+    combined.style.display = "none";
     graphs.push(combined);
     thisEltDiagrams.push(combined);
   });
@@ -180,19 +182,38 @@ function displayDiagrams(results, masterJson, graphs) {
     br.id = `br${randomString()}`;
     masterJson.parentNode.insertBefore(br, masterJson.nextSibling);
     graphs.push(br);
-    for (let i = 0; i < results.length; i++) {
-      let button = document.createElement("button");
-      button.innerHTML = `Step ${i}`;
-      button.onclick = function () {
-        thisEltDiagrams.forEach((diagram) => {
-          diagram.style.display = "none";
-        });
-        thisEltDiagrams[i].style.display = "block";
-      };
-      button.id = `btn${i}`;
-      masterJson.parentNode.insertBefore(button, masterJson.nextSibling);
-      graphs.push(button);
-    }
+    let sliderContent = document.createElement("div");
+    sliderContent.id = `${masterJson.id}-sliderContent`;
+    let sliderId = `${masterJson.id}-slider`,
+      textId = `${masterJson.id}-text`;
+    sliderContent.innerHTML = `<b id=${textId}>Step 1</b><br /><input id=${sliderId} type="range" min="1" max="${results.length}" value="1">`;
+    masterJson.parentNode.insertBefore(sliderContent, masterJson.nextSibling);
+
+    document.getElementById(sliderId).onchange = function () {
+      let slider = document.getElementById(sliderId),
+        text = document.getElementById(textId);
+      let i = slider.value;
+      thisEltDiagrams.forEach((diagram) => {
+        diagram.style.display = "none";
+      });
+      thisEltDiagrams[i - 1].style.display = "block";
+      text.innerHTML = `Step ${i}`;
+
+      // apply styling
+      let sliderStart = (widths[i - 1] - slider.width) / 3;
+      slider.style.marginLeft = `${sliderStart}px`;
+      let sliderWidth = slider.getBoundingClientRect().width,
+        textWidth = text.getBoundingClientRect().width;
+      text.style.marginLeft = `${
+        sliderStart +
+        ((i - 1) * sliderWidth) / (results.length - 1) -
+        textWidth / 2
+      }px`;
+    };
+
+    graphs.push(sliderContent);
+
+    document.getElementById(sliderId).onchange();
   }
 
   thisEltDiagrams[0].style.display = "block";
@@ -229,6 +250,21 @@ function renderJSON(jsonElement, id, master) {
         return $.extend(true, {}, x);
       });
       newMaster[0] = animation.modifyMaster(newMaster[0], graphs[0]);
+
+      // let graphsAfterLayout = [],
+      //   promises = [];
+      // graphs.forEach((graph) => {
+      //   promises.push(
+      //     elk.instance.layout(graph).then((graph) => {
+      //       graphsAfterLayout.push(graph);
+      //     })
+      //   );
+      // });
+
+      // Promise.all(promises).then(() => {
+      //   let combined = pathfindCombineDraw(id, jsonElement, graphsAfterLayout);
+      //   resolve({ combined, graphsAfterLayout });
+      // });
 
       // edit master to reflect stuff in graphs
       let combined = pathfindCombineDraw(id, jsonElement, newMaster);
