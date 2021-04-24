@@ -142,6 +142,17 @@ function flatten(e, ancestors) {
         }),
       ];
     }
+
+    if (e.assignment) {
+      return [
+        Object.assign({}, e, {
+          source: identifyPtrSource(e),
+          val: e.target.val,
+          target: { to: [] },
+        }),
+      ];
+    }
+
     return [
       Object.assign({}, e, {
         source: identifyPtrSource(e),

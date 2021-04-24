@@ -36,11 +36,13 @@ heap = $* vals:($* it:(pointer / value) { return it })+ { return { heap: vals } 
 pointer = name:lhs _? add:fieldadd? _? arrow:arrow _? target:rhs { return merge({ name, target }, add, arrow) }
 lhs = blank / ref
 fieldadd = "add" _? fieldname:lhs { return { add: true, fieldname } }
-arrow = reassignable / final / crossed / finalcrossed
+arrow = reassignable / assignmentcrossed / crossed / finalcrossed / final / assignment
 reassignable = "-"+ ">" { return {} }
 final = "="+ ">" { return { immutable: true } }
 crossed = "-"+ "x" ">" { return { crossed: true } }
 finalcrossed = "="+ "x" ">" { return { immutable: true, crossed: true } }
+assignment = "="+ { return { assignment: true } }
+assignmentcrossed = "="+ "x" "="+ { return { assignment: true, crossed: true } }
 
 rhs = value / ref
 value = object / array / string / primitive
@@ -54,7 +56,7 @@ fields = fields:(fieldlist)? { return fields || [] }
 fieldlist = first:field rest:(comma it:field { return it })* { return [ first, ...rest ] }
 field = pointer / pair / value
 
-pair = key:rhs _ "=" _ val:rhs { return { array: [ key, val ], inside: true } }
+pair = key:rhs _ "<" "-"+ ">" _ val:rhs { return { array: [ key, val ], inside: true } }
 
 array = "[" _ array:elements _ "]" { return { array } }
 elements = first:rhs rest:(comma it:rhs { return it })* { return [ first, ...rest ] }

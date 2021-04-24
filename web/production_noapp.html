@@ -9,6 +9,13 @@
 </head>
 <body>
 <script type="application/snapdown">
+i = 12345
+s = "I am a string!"
+x = `Hello`
+j -> 1
+lst -> (ArrayList 0=100 1=200 2->(Integer 300) `...` length=100)
+</script>
+<script type="application/snapdown">
 main() {
   a -> 2
 }
@@ -90,7 +97,7 @@ d -> (List 0 -> "a", 1 -> "b")
 </script>
 <h1>Maps</h1>
 <script type="application/snapdown">
-f -> (Map x = a, "b" = null)
+f -> (Map x <-> a, "b" <-> null)
 f -> (Map)
 x -> ((String))
 a -> ((String))
@@ -138,8 +145,8 @@ z -> #1
 }
 </script>
 <script type="application/snapdown">
-#p -> (Payment value -> 100.0)
-Payment.taxRate -> 0.05
+#p -> (Payment value = 100.0)
+Payment.taxRate = 0.05
 System.out -> (PrintStream)
 
 println() {}

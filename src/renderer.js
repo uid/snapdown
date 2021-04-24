@@ -34,6 +34,7 @@ function createSVGRoot(setStyleId) {
     text.object { font-family: sans-serif; font-size: 10pt; text-anchor: middle; transform: translateY(1.5ex); }
     text.func { font-family: sans-serif; font-size: 10pt; text-anchor: middle; transform: translateY(1.5ex); }
     text.value { font-family: sans-serif; font-size: 12pt; text-anchor: start; transform: translateY(1.5ex); }
+    text.assignmentval { font-family: sans-serif; font-size: 12pt; }
     </style>
   `
   );
@@ -136,7 +137,10 @@ function incorporate(e, graph, showHashRefs = false, includeEdges = true) {
     let ptr = Object.assign(
       {
         id: e.source,
-        labels: isHashRef || !e.independent ? [] : makeLabels(e.name.ref),
+        labels:
+          isHashRef || !e.independent
+            ? []
+            : makeLabels(e.name.ref, e.val, includeEdges),
       },
       e
     );
@@ -159,9 +163,9 @@ function incorporate(e, graph, showHashRefs = false, includeEdges = true) {
           { id: makeID("edge"), sources: [ptr.source], targets: [to.id] },
           e
         );
-        if (includeEdges) {
+        if (includeEdges && !e.assignment) {
           graph.edges.push(Object.assign(edge, to.options));
-        } else {
+        } else if (!includeEdges) {
           // TODO: edges directly from the stack to an object don't necessarily need to be rough?
           graph.roughEdges.push(Object.assign(edge, to.options));
         }
@@ -284,15 +288,20 @@ function incorporate(e, graph, showHashRefs = false, includeEdges = true) {
   throw new Error("Snapdown cannot incorporate: " + Object.keys(e));
 }
 
-function getTextBounds(text) {
+function getTextBounds(text, val = undefined, ptr = false) {
   let sections = text.split("\n");
+  let padding = 0;
+  if (val) {
+    sections.push(val);
+    padding = 5;
+  }
   let dimensions = sections.map((x) => {
     let elt = createSVG("text");
     elt.textContent = x;
     metrics.append(elt);
     let { width, height } = elt.getBoundingClientRect();
-    return { width, height };
     metrics.removeChild(elt);
+    return { width: val ? width + 2 * padding : width, height };
   });
 
   return {
@@ -301,12 +310,12 @@ function getTextBounds(text) {
   };
 }
 
-function makeLabels(text) {
+function makeLabels(text, val = undefined, ptr = false) {
   if (text === undefined) {
     return [];
   }
   text = `${text}`.split("#")[0];
-  let { width, height } = getTextBounds(text);
+  let { width, height } = getTextBounds(text, val, ptr);
   return [{ text, width, height }];
 }
 
@@ -328,13 +337,13 @@ function draw(nearby, graph, id) {
   document.body.append(metrics);
 
   let frameWidth = maxFuncWidth(graph);
-  graph.children.forEach(drawAtom.bind(null, root, styleId, frameWidth));
+  graph.children.forEach(drawAtom.bind(null, root, styleId, frameWidth, []));
   document.body.removeChild(metrics);
 
   return root;
 }
 
-function drawAtom(parent, styleId, frameWidth, atom) {
+function drawAtom(parent, styleId, frameWidth, history, atom) {
   let group = createSVG("g");
 
   if (atom.func) {
@@ -366,9 +375,20 @@ function drawAtom(parent, styleId, frameWidth, atom) {
     group.append(rect);
   }
 
-  atom.labels && atom.labels.forEach(drawLabel.bind(null, group, atom));
+  let type = atom.object
+    ? "object"
+    : atom.array
+    ? "array"
+    : atom.func
+    ? "func"
+    : "";
+
+  atom.labels &&
+    atom.labels.forEach(drawLabel.bind(null, group, atom, history));
   atom.children &&
-    atom.children.forEach(drawAtom.bind(null, group, styleId, frameWidth));
+    atom.children.forEach(
+      drawAtom.bind(null, group, styleId, frameWidth, history.concat([type]))
+    );
 
   let sources = {};
   for (let edge of atom.edges || []) {
@@ -434,13 +454,57 @@ function drawSeparator(parent, x, height) {
   parent.append(path);
 }
 
-function drawLabel(parent, atom, label) {
+function drawLabel(parent, atom, history, label) {
   let text = createSVG("text");
   ["x", "y"].forEach((attr) => text.setAttribute(attr, label[attr]));
 
   let textContent = label.text.split("#")[0];
 
-  if (atom.object) {
+  if (atom.source && !history.includes("func")) {
+    metrics.append(text);
+    text.textContent = textContent;
+    text.classList.add("value");
+    let textRect = text.getBoundingClientRect();
+    metrics.removeChild(text);
+    parent.append(text);
+
+    // let rect = createSVG("rect", "snap-obj");
+    if (atom.assignment && atom.val) {
+      let rect = createSVG("rect", "snap-obj");
+      let valueText = createSVG("text");
+      valueText.classList.add("assignmentval");
+      valueText.textContent = atom.val;
+      metrics.append(valueText);
+
+      valueText.setAttribute(
+        "y",
+        atom.height + valueText.getBoundingClientRect().height
+      );
+      let valueRect = valueText.getBoundingClientRect();
+
+      let minStart = Math.min(valueRect.left, textRect.left),
+        maxEnd = Math.max(valueRect.right, textRect.right);
+      let middle = minStart + Math.max(valueRect.width, textRect.width) / 2;
+      valueText.setAttribute("x", middle - valueRect.width / 2);
+      text.setAttribute("x", middle - textRect.width / 2);
+
+      const padding = 5;
+
+      rect.setAttribute("width", valueRect.width + 2 * padding);
+      rect.setAttribute("height", valueRect.height + padding);
+      rect.setAttribute("x", valueText.getAttribute("x") - padding);
+      rect.setAttribute("y", atom.height);
+
+      metrics.removeChild(valueText);
+      parent.append(valueText);
+      parent.append(rect);
+    }
+    // else {
+    //   rect.setAttribute("width", atom.width);
+    //   rect.setAttribute("height", atom.height);
+    //   rect.setAttribute("y", atom.height);
+    // }
+  } else if (atom.object) {
     text.classList.add("object");
     text.setAttribute("x", atom.width / 2);
     text.textContent = textContent;
@@ -485,6 +549,11 @@ function drawEdge(parent, styleId, edge) {
     "d",
     edge.sections
       .map((s) => {
+        // let circle = createSVG("circle");
+        // circle.setAttribute("r", 2);
+        // circle.setAttribute("cx", s.startPoint.x);
+        // circle.setAttribute("cy", s.startPoint.y + 5);
+        // parent.append(circle);
         let desc = [`M ${s.startPoint.x} ${s.startPoint.y}`];
         let bendPoints = Array.from(s.bendPoints || []);
         bendPoints.push(s.endPoint);
