@@ -231,15 +231,20 @@ function lookupRef(ref, ancestors, visited) {
   let giveUpIds = [];
   let ids = [];
   for (var match of matches) {
-    let id = identify(match.target);
-    // TODO other options for a pointer to this target
-    let independent = !match.crossed && !match.hyper;
     let options = {
       crossed: match.crossed,
       hyper: match.hyper,
       group: match.group,
       erased: match.erased,
     };
+    if (match.assignment) {
+      ids.push({ id: identify(match), options });
+      continue;
+    }
+
+    let id = identify(match.target);
+    // TODO other options for a pointer to this target
+    let independent = !match.crossed && !match.hyper;
     if (match.target.ref && !visited.includes(id)) {
       // if this target hasn't been visited, keep going
       let result = lookupRef(match.target.ref, ancestors, [id, ...visited]);

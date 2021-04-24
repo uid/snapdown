@@ -65,7 +65,7 @@ elements = first:rhs rest:(comma it:rhs { return it })* { return [ first, ...res
 string = "\"" [^"]* "\"" { return { val: text() } }
 
 primitive = val:(float / integer / boolean / char / null / phrase) { return { val } }
-float = ([0-9]* "." [0-9]+ / [0-9]+ "." [0-9]*) { return text() }
+float = ("-"?[0-9]* "." [0-9]+ / [0-9]+ "." [0-9]*) { return text() }
 integer = "-"?[0-9]+ { return text() }
 boolean = "true" { return true } / "false" { return false }
 char = "'" . "'" { return text() }

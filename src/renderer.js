@@ -485,8 +485,8 @@ function drawLabel(parent, atom, history, label) {
       let minStart = Math.min(valueRect.left, textRect.left),
         maxEnd = Math.max(valueRect.right, textRect.right);
       let middle = minStart + Math.max(valueRect.width, textRect.width) / 2;
-      valueText.setAttribute("x", middle - valueRect.width / 2);
-      text.setAttribute("x", middle - textRect.width / 2);
+      valueText.setAttribute("x", middle - valueRect.width / 2 + 5);
+      text.setAttribute("x", middle - textRect.width / 2 + 5);
 
       const padding = 5;
 
