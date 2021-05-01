@@ -105,7 +105,7 @@ function flatten(e, ancestors) {
     }
 
     // already have a target ID for this
-    if (e.target.to) {
+    if (e.target && e.target.to) {
       return [
         Object.assign({}, e, {
           source: identifyPtrSource(e),
@@ -114,14 +114,16 @@ function flatten(e, ancestors) {
       ];
     }
 
-    if (e.target.ref) {
+    if (!e.target || e.target.ref) {
+      if (!e.target) e.target = { ref: e.name.ref };
       let lookupIds = lookupRef(e.target.ref, ancestors, []).ids;
       let filteredIds = lookupIds;
 
       if (!e.target.ref.startsWith("#")) {
-        let filteredIds = lookupIds.filter(
+        filteredIds = lookupIds.filter(
           (x) => !x.options.crossed && !x.options.erased
         );
+        // TODO: ?
         if (!filteredIds.length && lookupIds.length) {
           filteredIds = lookupIds.filter((x) => !x.options.erased);
         }

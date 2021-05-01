@@ -165,7 +165,7 @@ function pathfindCombineDraw(id, jsonElement, graphsAfterLayout) {
   return combined;
 }
 
-function displayDiagrams(results, masterJson, graphs) {
+function displayDiagrams(results, masterJson, graphs, step = 1) {
   let thisEltDiagrams = [];
   let widths = [];
   results.forEach((result) => {
@@ -177,6 +177,8 @@ function displayDiagrams(results, masterJson, graphs) {
     thisEltDiagrams.push(combined);
   });
 
+  if (step > results.length) step = results.length;
+
   if (results.length > 1) {
     let br = document.createElement("br");
     br.id = `br${randomString()}`;
@@ -186,7 +188,7 @@ function displayDiagrams(results, masterJson, graphs) {
     sliderContent.id = `${masterJson.id}-sliderContent`;
     let sliderId = `${masterJson.id}-slider`,
       textId = `${masterJson.id}-text`;
-    sliderContent.innerHTML = `<b id=${textId}>Step 1</b><br /><input id=${sliderId} type="range" min="1" max="${results.length}" value="1">`;
+    sliderContent.innerHTML = `<b id=${textId}>Step ${step}</b><br /><input id=${sliderId} type="range" min="1" max="${results.length}" value="${step}">`;
     masterJson.parentNode.insertBefore(sliderContent, masterJson.nextSibling);
 
     document.getElementById(sliderId).onchange = function () {
@@ -200,7 +202,7 @@ function displayDiagrams(results, masterJson, graphs) {
       text.innerHTML = `Step ${i}`;
 
       // apply styling
-      let sliderStart = (widths[i - 1] - slider.width) / 3;
+      let sliderStart = (widths[0] - slider.width) / 3;
       slider.style.marginLeft = `${sliderStart}px`;
       let sliderWidth = slider.getBoundingClientRect().width,
         textWidth = text.getBoundingClientRect().width;
@@ -216,7 +218,7 @@ function displayDiagrams(results, masterJson, graphs) {
     document.getElementById(sliderId).onchange();
   }
 
-  thisEltDiagrams[0].style.display = "block";
+  thisEltDiagrams[step - 1].style.display = "block";
 }
 
 // layout and render Snapdown JSON
@@ -273,7 +275,7 @@ function renderJSON(jsonElement, id, master) {
   });
 }
 
-function render(elt, callback) {
+function render(elt, callback, step = 1) {
   let created = [],
     promises = [],
     graphs = [];
@@ -302,7 +304,7 @@ function render(elt, callback) {
             })
           );
         })
-        .then((results) => displayDiagrams(results, masterJson, graphs))
+        .then((results) => displayDiagrams(results, masterJson, graphs, step))
     );
   }
 

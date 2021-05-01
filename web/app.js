@@ -44,6 +44,7 @@ class App extends React.Component {
       drawerOpen: true,
       label: "Type Snapdown here",
       fileName: "diagram.svg",
+      step: 1,
     };
     this.timeout = 0;
   }
@@ -87,7 +88,24 @@ class App extends React.Component {
     return `<script type="application/snapdown">\n${this.state.snapdownText[field]}\n</script>`;
   }
 
+  getSliderStep(created) {
+    console.log(created);
+    if (!created) return 1;
+    for (let id of created) {
+      if (id.endsWith("sliderContent")) {
+        let slider = document.getElementById(
+          id.replace("sliderContent", "slider")
+        );
+        if (slider) return slider.value;
+      }
+    }
+    return 1;
+  }
+
   redraw(id, newText) {
+    let step = this.getSliderStep(this.state.created[id]);
+    console.log(step);
+
     let toRemove = [];
     Object.keys(this.state.created).map((x) => {
       if (x == id) {
@@ -105,15 +123,20 @@ class App extends React.Component {
     let created = Object.assign({}, this.state.created);
 
     try {
+      Snapdown.render(
+        scriptElement,
+        (graphs) => {
+          created[id] = graphs.map((x) => x.id);
+          this.setState({ rendered: true, created: created });
+        },
+        step
+      );
       for (var x of toRemove) x.remove();
-      Snapdown.render(scriptElement, (graphs) => {
-        created[id] = graphs.map((x) => x.id);
-        this.setState({ rendered: true, created: created });
-      });
       error[id] = false;
       this.setState({ error: error });
     } catch (err) {
       console.log(err);
+      for (var x of toRemove) x.style.opacity = "0.5";
       error[id] = true;
       this.setState({ error: error });
     }
@@ -226,7 +249,7 @@ class App extends React.Component {
                     if (this.timeout) clearTimeout(this.timeout);
                     this.timeout = setTimeout(() => {
                       this.setSnapdownText(x, snapdownText);
-                    }, 300);
+                    }, 500);
                     this.setState({ label: null });
                   }}
                   defaultValue={this.state.snapdownText[x]}

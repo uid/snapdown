@@ -51,7 +51,7 @@ function replaceRefInDiagram(diffPart, diagram, snap, iter, grow = false) {
     }
   }
 
-  if (grow) diffPart.hyper = true;
+  if (grow && id.length) diffPart.hyper = true;
 
   if (id.length) {
     // field already exists in diagram, remove all instances & replace
@@ -60,6 +60,13 @@ function replaceRefInDiagram(diffPart, diagram, snap, iter, grow = false) {
       let toDeleteElems = [];
       let shouldPush = false;
       for (let j = 0; j < newDiagram.heap.length; j++) {
+        let hasTargetFields =
+          newDiagram.heap[j].target &&
+          newDiagram.heap[j].target.fields &&
+          newDiagram.heap[j].target.id == id[i];
+        let hasFields =
+          newDiagram.heap[j].fields && newDiagram.heap[j].id == id[i];
+
         // is of type "add"
         if (
           diffPart.add &&
@@ -81,34 +88,49 @@ function replaceRefInDiagram(diffPart, diagram, snap, iter, grow = false) {
           // independent: resolve by replacing heap element
           if (indep[i]) {
             if (!grow) {
-              diffPart.hyper = true;
+              newDiagram.heap[j].hyper = true;
+              diffPart.hyper = false;
               shouldPush = true;
               newDiagram.heap[j].erased = true;
             } else {
+              newDiagram.heap[j].hyper = true;
+              diffPart.hyper = false;
               shouldPush = true;
+            }
+            delete newDiagram.heap[j].independent;
+            if (diffPart.target === null && newDiagram.heap[j].target) {
+              diffPart.target = { to: [{ id: newDiagram.heap[j].target.id }] };
             }
             resolved = true;
           }
           // not independent: delete heap element
           else toDeleteElems.push(j);
         } else if (
-          diffPart.add &&
+          //diffPart.add &&
           fieldId[i] &&
-          newDiagram.heap[j].target &&
-          newDiagram.heap[j].target.fields &&
-          newDiagram.heap[j].target.id == id[i]
+          (hasTargetFields || hasFields)
         ) {
-          let fields = newDiagram.heap[j].target.fields;
+          let fields = hasTargetFields
+            ? newDiagram.heap[j].target.fields
+            : newDiagram.heap[j].fields;
           let toDeleteFields = [];
           let shouldPushField = false;
           for (let k = 0; k < fields.length; k++) {
+            if (fields[k].id != fieldId[i]) continue;
             if (indep[i]) {
               if (!grow) {
-                diffPart.hyper = true;
+                fields[k].hyper = true;
+                diffPart.hyper = false;
                 shouldPushField = true;
                 fields[k].erased = true;
               } else {
+                fields[k].hyper = true;
+                diffPart.hyper = false;
                 shouldPushField = true;
+              }
+              delete fields[k].independent;
+              if (diffPart.target === null && fields[k].target) {
+                diffPart.target = { to: [{ id: fields[k].target.id }] };
               }
               resolved = true;
             } else toDeleteFields.push(k);
