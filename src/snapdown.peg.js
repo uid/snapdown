@@ -56,7 +56,7 @@ fields = fields:(fieldlist)? { return fields || [] }
 fieldlist = first:field rest:(comma it:field { return it })* { return [ first, ...rest ] }
 field = pointer / pair / value
 
-pair = key:rhs _ "<" "-"+ ">" _ val:rhs { return { array: [ key, val ], inside: true } }
+pair = key:rhs _ ":" _ val:rhs { return { array: [ key, val ], inside: true } }
 
 array = "[" _ array:elements _ "]" { return { array } }
 elements = first:rhs rest:(comma it:rhs { return it })* { return [ first, ...rest ] }
