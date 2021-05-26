@@ -10,9 +10,6 @@ let br = document.createElement('br');
 let typingTimer = {};
 const FORM_INTERVAL = 2000, DIAGRAM_INTERVAL = 300;
 
-// hack: set global variable of snapdown to this random ID...
-Snapdown.setRandomId("TODO is this needed?");
-
 let redrawDiagram = () => {
   let input = doc.data.text;
   let elt = document.createElement("script");
@@ -23,7 +20,7 @@ let redrawDiagram = () => {
 
   try {
     Snapdown.render(elt);
-    document.getElementById('error').innerHTML = "";
+    document.getElementById('snap-error').style.display = 'none';
   } catch (e) {
     replaceChildren(diagram, oldChildren);
     for (let child of oldChildren) {
@@ -31,7 +28,7 @@ let redrawDiagram = () => {
         child.style.opacity = "0.5";
       }
     }
-    document.getElementById('error').innerHTML = "Unable to parse Snapdown input.";
+    document.getElementById('snap-error').style.display = 'block';
   }
 }
 
@@ -48,7 +45,6 @@ function snapdownTextboxOnChange() {
   if (redrawDiagram) {
     timeouts['diagram'] = {interval: DIAGRAM_INTERVAL, func: redrawDiagram};
   }
-
   for (const [timeoutId, timeoutInfo] of Object.entries(timeouts)) {
     if (typingTimer[timeoutId]) {
       clearTimeout(typingTimer[timeoutId]);
@@ -59,10 +55,56 @@ function snapdownTextboxOnChange() {
 
 doc.on('load', () => {
   snapdownTextboxOnChange();
+
+  let extra = document.getElementById('extra');
+  let errorElt = document.createElement('div');
+  errorElt.className = document.getElementById('error').className;
+  errorElt.id = 'snap-error';
+  errorElt.innerHTML = "<b>Error:</b> Unable to parse Snapdown input.";
+  errorElt.style.display = 'none';
+
   document.body.insertAdjacentHTML("afterbegin", `<div id="snapdownHelpLocation"></div>`);
-  document.getElementById('extra').insertAdjacentHTML("afterbegin", `<p class="no-markdown"><a href="#" onclick="Snapdown.showHelp(); return false;" id="showSnapdownHelp"><strong>Click to show Snapdown help sidebar</strong></a></p>`)
+  extra.insertAdjacentHTML("afterbegin", `<p class="no-markdown"><a href="#" onclick="Snapdown.showHelp(); return false;" id="showSnapdownHelp"><strong>Click to show Snapdown help sidebar</strong></a></p>`);
+  extra.insertAdjacentElement("beforeend", errorElt);
+
   Snapdown.populateHelp("snapdownHelpLocation");
   Snapdown.renderAll();
 });
 
 doc.on('op', snapdownTextboxOnChange);
+
+const initialDiagrams = {
+  'ic05-git-snapshot': [
+    '// Imagine we\'re implementing Git in Java, so we have types like Commit, Tree, etc.',
+    '// Just draw the pink commit and the objects it directly points to',
+    '',
+    '((Commit',
+    '  id => (TODO)',
+    '  // TODO: more fields',
+    '))',
+  ].join('\n'),
+  'ic15-equality': [
+    '// After you\'ve drawn the diagram, answer these questions:',
+    '',
+    '// How many arrows are in your snapshot diagram? ________',
+    '// How many objects are in your snapshot diagram? ________',
+    '',
+    'seg -> (',
+    'Stroke',
+    ')',
+    '',
+    '// you\'ll need these to represent Stroke',
+    '// (make sure to also show the rep of Point)',
+    '',
+    '(Point)',
+    '(Color `BLACK`)'
+  ].join('\n')
+};
+
+doc.on('create', function(local) {
+  console.warn('create', local);
+  if ( ! local) { return; }
+  var text = initialDiagrams[doc.data.project] || '';
+  document.getElementById('text').value = text;
+  doc.submitOp({ p: [ 'text' ], od: doc.data.text, oi: text });
+});
