@@ -5,14 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link rel="stylesheet" href="../docs/snapdown.css">
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
-<script src="../dist/snapdown.js"></script>
 </head>
 <body>
 
 <table style="margin:5%;">
 <tr>
 
-<td style="width:40%;">
+<td style="width:70%;">
 <div style="width:70%;">
 The diagram at right shows the state of the following program
 at various points in its execution.
@@ -33,21 +32,22 @@ lst.add(new Dog("Rex"));<br /><br />
 </div>
 </td>
 <td>
+<script src="../dist/snapdown.js"></script>
 <script type="application/snapdown">
-dog -> (Dog "Sam")
+d -> (Dog "Sam")
 ---
-lst -> (
-List
-0 -> dog
+arr -> (
+Array
+0 -> d
 1 -> (Dog "Fred")
 2 -> (Dog "George")
 )
-park -> (DogPark _ -> lst)
+park -> (DogPark _ -> arr)
 ---
 2 -x>
 2 -> (Dog "Georgina")
 ---
-lst add 3 -> (Dog "Rex")
+arr add 3 -> (Dog "Rex")
 </script>
 </td>
 <script>
