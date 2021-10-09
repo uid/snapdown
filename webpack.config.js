@@ -6,8 +6,11 @@ const webpack = require("webpack");
 
 const pkg = require("./package.json");
 const pkglock = require("./package-lock.json");
+const repo = pkg.repository.replace("github:", "https://github.com/");
 
 const abs = (f) => path.resolve(__dirname, f);
+
+const banner = `${pkg.version}\n${pkg.homepage}\n${repo}`;
 
 module.exports = [
   {
@@ -41,7 +44,7 @@ module.exports = [
       },
     },
     plugins: [
-      new webpack.BannerPlugin(`Snapdown ${pkg.version}\n${pkg.homepage}`),
+      new webpack.BannerPlugin(`Snapdown ${banner}`),
       new webpack.DefinePlugin({
         ELK_WORKER_URL: `"https://unpkg.com/elkjs@${pkglock.dependencies.elkjs.version}/lib/elk-worker.min.js"`,
       }),
@@ -78,7 +81,7 @@ module.exports = [
       },
     },
     plugins: [
-      new webpack.BannerPlugin(`Snapdown ${pkg.version}\n${pkg.homepage}`),
+      new webpack.BannerPlugin(`Snapdown App ${banner}`),
       new webpack.DefinePlugin({
         ELK_WORKER_URL: `"https://unpkg.com/elkjs@${pkglock.dependencies.elkjs.version}/lib/elk-worker.min.js"`,
       }),
