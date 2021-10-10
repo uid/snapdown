@@ -7,10 +7,8 @@ body {
 /* embed the app in a section of the page */
 #app {
   position: relative;
-  width: 100%;
   padding-bottom: 48px;
-  border-top: 1px solid #3f51b5;
-  border-bottom: 1px solid #3f51b5;
+  border: 1px solid #3f51b5;
   min-height: 450px;
 }
 #app .MuiToolbar-root {
