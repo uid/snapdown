@@ -1,57 +1,24 @@
-@import url(https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css);
-@import url(https://fonts.googleapis.com/css?family=Rubik:400,700);
+@import url(https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css);
+@import url(https://fonts.googleapis.com/css?family=Rubik:400,500,700);
 body {
   font-family: "Rubik", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-@keyframes slidein {
-  from {
-    margin-left: 100%;
-    width: 30%; 
-  }
-
-  to {
-    margin-left: 0%;
-    width: 30%;
-  }
+/* embed the app in a section of the page */
+#app {
+  position: relative;
+  width: 100%;
+  padding-bottom: 48px;
+  border-top: 1px solid #3f51b5;
+  border-bottom: 1px solid #3f51b5;
+  min-height: 450px;
 }
-
-@keyframes slideout {
-  from {
-    margin-left: 0%;
-    width: 30%; 
-  }
-
-  to {
-    margin-left: 100%;
-    width: 30%;
-  }
+#app .MuiToolbar-root {
+  min-height: 0;
 }
-
-.sidenav {
-  height: 100%; /* 100% Full-height */
-  width: 30%; /* 30% width */
-  position: fixed; /* Stay in place */
-  z-index: 1; /* Stay on top */
-  top: 0; /* Stay at the top */
-  left: 70%;
-  background-color: #EFEFEF;
-  overflow-x: hidden; /* Disable horizontal scroll */
-  padding: 20px;
-  animation-duration: 1s;
-  animation-name: slidein;
+#app h5 {
+  font-size: 1rem;
 }
-
-.hidenav {
-  height: 100%; /* 100% Full-height */
-  width: 0%; /* 0 width */
-  position: fixed; /* Stay in place */
-  z-index: 1; /* Stay on top */
-  top: 0; /* Stay at the top */
-  left: 100%;
-  background-color: #EFEFEF;
-  overflow-x: hidden; /* Disable horizontal scroll */
-  padding: 20px;
-  animation-duration: 1s;
-  animation-name: slideout;
+#app .MuiDrawer-paper {
+  position: absolute;
 }

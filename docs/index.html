@@ -5,11 +5,60 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link rel="stylesheet" href="./snapdown.css">
 <script src="./snapdown.js"></script>
+<title>Snapdown</title>
 </head>
 <body>
 
+<div class="container mt-5">
+<h1>Snapdown</h1>
+<p>Draw snapshot diagrams with plain text</p>
+<p><a href="https://github.com/uid/snapdown">Source</a></p>
+<p>MIT EECS and the <a href="http://up.csail.mit.edu/">Usable Programming Group</a></p>
+</div>
+
 <div id="app"></div>
 
+<div class="container mt-3 mb-5">
+<h3>Embedding</h3>
+<div class="row">
+<div class="col-auto px-0">
+<ol>
+<li style="margin-top:40px">Include the <a href="https://github.com/uid/snapdown/releases">snapdown.js</a> library</li>
+<li style="margin-top:48px">Write in <span style="letter-spacing: -1px">application/snapdown</span> script tags</li>
+<li style="margin-top:48px">Call Snapdown.renderAll()</li>
+</ol>
+</div>
+<div class="col-auto">
+<pre class="bg-light rounded px-3">
+&lt;html>
+&lt;head>
+&lt;script src="snapdown.js">&lt;/script>
+&lt;/head>
+&lt;body>
+&lt;script type="application/snapdown">
+hello -x> (World)
+hello -> (Snapdown)
+&lt;/script>
+&lt;script>Snapdown.renderAll();&lt;/script>
+&lt;/body>
+&lt;/html>
+</pre>
+</div>
+<div class="col-auto pt-5 px-0">
+<script id="embedding-example" type="application/snapdown">
+hello -x> (World)
+hello -> (Snapdown)
+</script>
+</div>
+</div>
+
+<h3>Projects</h3>
+<p>Daniel Whatley, Max Goldman, and Robert C. Miller. <a href="http://up.csail.mit.edu/other-pubs/vlhcc2021-snapdown.pdf">Snapdown: A&nbsp;Text-Based&nbsp;Snapshot&nbsp;Diagram&nbsp;Language for&nbsp;Programming&nbsp;Education</a>. VL/HCC&nbsp;2021</p>
+</div>
+
 <script src="./snapdown-app.js"></script>
+<script>
+Snapdown.render(document.getElementById('embedding-example'));
+</script>
 </body>
 </html>
