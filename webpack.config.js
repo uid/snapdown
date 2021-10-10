@@ -16,11 +16,11 @@ module.exports = [
   {
     entry: ["./src/index.js"],
     output: {
-      path: abs("dist"),
+      path: abs("docs"),
       filename: "snapdown.js",
       library: "Snapdown",
     },
-    devtool: "source-map",
+    // devtool: "source-map",
     module: {
       rules: [
         {
@@ -53,11 +53,11 @@ module.exports = [
   {
     entry: ["./web/app.js"],
     output: {
-      path: abs("static"),
+      path: abs("docs"),
       filename: "snapdown-app.js",
       library: "SnapdownWeb",
     },
-    devtool: "source-map",
+    // devtool: "source-map",
     module: {
       rules: [
         {

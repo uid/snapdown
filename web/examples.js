@@ -49,7 +49,7 @@ const examples = {
   mapfields: {
     name: "Map fields",
     snapdown:
-      's -> (String "value")\nm -> (\nHashMap\n(String "key") <-> s\n)\nm2 -> (\nHashMap\n(String "otherKey") <-> s\n)',
+      's -> (String "value")\nm -> (\nHashMap\n(String "key"): s\n)\nm2 -> (\nHashMap\n(String "otherKey"): s\n)',
     explanation:
       "In this example, we have two maps, each with a single key, and both with the same single value.",
     percentSize: "80",

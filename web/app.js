@@ -89,7 +89,6 @@ class App extends React.Component {
   }
 
   getSliderStep(created) {
-    console.log(created);
     if (!created) return 1;
     for (let id of created) {
       if (id.endsWith("sliderContent")) {
@@ -104,7 +103,6 @@ class App extends React.Component {
 
   redraw(id, newText) {
     let step = this.getSliderStep(this.state.created[id]);
-    console.log(step);
 
     let toRemove = [];
     Object.keys(this.state.created).map((x) => {
